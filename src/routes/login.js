@@ -24,15 +24,6 @@ class Login extends Component {
 
   componentDidMount() {
     this.props.dispatch({ type: 'user/POST_login' });
-
-    mwm.onFoundDevice(device => {
-      console.log(device)
-      console.log('device');
-    })
-  }
-  scan() {
-    mwm.scan()
-    console.log('scan');
   }
   render() {
     const {
@@ -84,12 +75,6 @@ class Login extends Component {
       <View style={styles.button}>
         <Button onPress={() => { this.createUserData(this.state.userData) }}
           title="Let's Play"
-          color="gray"
-        />
-      </View>
-      <View style={styles.button}>
-        <Button onPress={() => { this.scan() }}
-          title="Scan MindWave"
           color="gray"
         />
       </View>
