@@ -12,6 +12,7 @@ import {
 
 import Home from './routes/home';
 import Login from './routes/login';
+import Device from './routes/device';
 
 const DvaRouter = connect()(props => {
   const reducerCreate = params => {
@@ -30,12 +31,16 @@ export default () => {
   return <DvaRouter>
     <Overlay>
       <Modal hideNavBar>
-        <Stack key="root">
-          <Scene key="home" component={Home} title="Home" />
-        </Stack>
+
         <Stack key="login">
-          <Scene key="loginMain" component={Login} title="Login" 
-            onRight={() => Actions.pop()} rightTitle="Close" />
+          <Scene key="loginMain" component={Login} hideNavBar={true} />
+        </Stack>
+        <Stack key="root">
+          <Scene key="home" component={Home} hideNavBar={true} />
+        </Stack>
+        <Stack key="device">
+          <Scene key="deviceMain" component={Device} title="Devices"
+            onLeft={() => Actions.pop()} leftTitle="Close" />
         </Stack>
       </Modal>
     </Overlay>

@@ -3,6 +3,8 @@ import dva from 'dva-no-router';
 
 import router from './router';
 import user from './models/user';
+import selection from './models/selection';
+
 
 class App extends Component {
   app = dva();
@@ -11,6 +13,7 @@ class App extends Component {
   };
   componentDidMount() {
     this.app.model(user);
+    this.app.model(selection);    
     this.app.router(router);
 
     this.setState({ init: true });

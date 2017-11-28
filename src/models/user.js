@@ -3,30 +3,30 @@ import * as user from '../services/user';
 export default {
   namespace: 'user',
   state: {
-    account: null,
-    token: null,
     name: null,
+    email: null,
+    phone: null,
   },
   reducers: {
-    login(state, action) {
+    postData(state, action) {
       return {
         ...state,
-        ...action.data,
+        ...action.userData,
       };
     },
     logout(state, action) {
       return {
         ...state,
-        account: null,
-        token: null,
         name: null,
+        email: null,
+        phone: null,
       };
     },
   },
   effects: {
-    *POST_login(action, { call, put }) {
+    *POST_data(action, { call, put }) {
       const { data } = yield call(user.POST_login);
-      yield put({ type: 'login', data });
+      yield put({ type: 'postData', userData: action.userData });
     },
   },
 }
