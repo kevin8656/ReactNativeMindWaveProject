@@ -31,7 +31,6 @@ export default () => {
   return <DvaRouter>
     <Overlay>
       <Modal hideNavBar>
-
         <Stack key="login">
           <Scene key="loginMain" component={Login} hideNavBar={true} />
         </Stack>

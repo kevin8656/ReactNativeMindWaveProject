@@ -35,7 +35,6 @@ class Home extends Component {
       defaultPage: true,
       PrestartTest: false,
       deviceFound: false,
-      mindwaveConnected: false,
       devices: [],
       mindwaveTimer: 0,
       //確認訊號值歸零
@@ -43,7 +42,6 @@ class Home extends Component {
       poorSignalTimer: poorSignalTimerTimeMax,
       Connected: false,
       isScanning: false,
-      willConnect: null,
       //腦波數據
       delta: this.props.delta ? this.props.delta : null,
       highAlpha: this.props.highAlpha ? this.props.highAlpha : null,
@@ -59,7 +57,24 @@ class Home extends Component {
       timerCounter: 0,
     }
   }
-
+  componentWillUnmount() {
+    //clearTimeout(this.timerScan)
+    mwm.removeAllListeners();
+  }
+  componentDidMount() {
+    this.props.dispatch({ type: 'user/POST_login' });
+    console.log('run componentDidMount');
+    mwm.onConnect(this.handleConnect);
+    mwm.onDisconnect(this.handleDisconnect);
+    mwm.onFoundDevice(this.handleFoundDevice);
+    mwm.onEEGPowerLowBeta(this.handleEEGPowerLowBeta);
+    mwm.onEEGPowerDelta(this.handleEEGPowerDelta);
+    mwm.onESense(this.handleESense);
+    if (Platform.OS === 'ios') {
+      mwm.onEEGBlink(this.handleEEGBlink);
+      mwm.onMWMBaudRate(this.handleMWMBaudRate);
+    }
+  }
   componentWillReceiveProps(nextProps) {
     const { user: previous_user } = this.props;
     const { user } = nextProps;
@@ -68,7 +83,6 @@ class Home extends Component {
         userData: user,
       });
     }
-
     //檢查訊號值正常（poorsignal為0）
     const { poorSignal } = nextProps;
     //console.log('poorSignal', poorSignal);
@@ -123,7 +137,6 @@ class Home extends Component {
   //----腦波操作function----
   //掃描裝置
   handlePressScan = () => {
-    //if (!this.state.isScanning) {
     if (isMock) {
       setTimeout(() => {
         this.handleFoundDevice({
@@ -132,16 +145,9 @@ class Home extends Component {
       }, 1000);
       console.log('mock');
     } else {
-      // this.setState({ defaultPage: false })
-      // this.setState({ showBtn: false })
       mwm.scan();
       console.log('scan');
     }
-    // this.setState({
-    //     isScanning: true,
-    // });
-    //}
-
   }
   //尋找腦波耳機裝置
   handleFoundDevice = (device) => {
@@ -165,65 +171,37 @@ class Home extends Component {
     this.setState({
       devices: this.state.devices,
     });
-  }
-  //點擊後連接到Device
-  handlePressConnectDevice = (device) => {
-    if (!device.id) {
-      console.error('can not connect no id device');
-      return;
-    }
-    this.setState({
-      willConnect: device.id,
-    });
-    if (isMock) {
-      setTimeout(() => {
-        this.handleConnect({ success: true });
-      }, 2000);
-    } else {
-      mwm.connect(device.id);
-    }
-  }
-  //點擊後關閉裝置連接
-  handlePressDisconnectDevice = () => {
-    if (!this.state.mindwaveConnected) {
-      console.log('no connecting device');
-      return;
-    }
-    if (isMock) {
-      this.handleDisconnect({ success: true });
-    } else {
-      mwm.disconnect();
-    }
+    this.props.dispatch({ type: 'mindwavedevicelist/save_mindwaveDeviceList', deviceList: this.state.devices });
   }
   //連接腦波耳機
   handleConnect = ({ success }) => {
-    alert(`連結 ${success ? '成功' : '失敗'}`);
+    console.log(`連結 ${success ? '成功' : '失敗'}`);
+    //alert(`連結 ${success ? '成功' : '失敗'}`);
     //ToastAndroid.show(`連結 ${success ? '成功' : '失敗'}`, ToastAndroid.SHORT);
-    if (success === true && this.state.willConnect) {
-      this.changeConnectedState(this.state.willConnect, true);
+    if (success) {
       this.setState({
         Connected: true,
       });
     } else {
-      console.log('will connect device is null');
+      console.log('connect faild');
     }
   }
   //關閉腦波耳機連接
   handleDisconnect = ({ success }) => {
-    alert(`移除連結 ${success ? '成功' : '失敗'}`);
+    console.log(`移除連結 ${success ? '成功' : '失敗'}`);
+    //alert(`移除連結 ${success ? '成功' : '失敗'}`);
     //ToastAndroid.show(`移除連結 ${success ? '成功' : '失敗'}`, ToastAndroid.SHORT);
-    if (success === true && !this.state.mindwaveConnected) {
+    if (success && !this.state.Connected) {
       this.setState({
         Connected: false,
       });
-      console.log('no connecting device');
+      console.log('disconnecting device');
       return;
     }
-    this.changeConnectedState(this.state.mindwaveConnected, false)
   }
   handleEEGPowerLowBeta = (data) => {
     console.log('onEEGPowerLowBeta', data);
-    this.props.onEEGPowerLowBeta(data);
+    //this.props.onEEGPowerLowBeta(data);
   }
 
   handleEEGPowerDelta = (data) => {
@@ -231,13 +209,13 @@ class Home extends Component {
     this.setState({
       mindwaveTimer: this.state.mindwaveTimer + 1
     })
-    this.props.onEEGPowerDelta(data, this.state.mindwaveTimer)
+    //this.props.onEEGPowerDelta(data, this.state.mindwaveTimer)
   }
 
   handleESense = (data) => {
     console.log('onESense', data);
     if (data.poorSignal != -1) {
-      this.props.onESense(data);
+      //this.props.onESense(data);
     }
   }
   handleEEGBlink = (data) => {
@@ -246,46 +224,6 @@ class Home extends Component {
 
   handleMWMBaudRate = (data) => {
     console.log('onMWMBaudRate', data);
-  }
-
-  //改變連接狀態
-  changeConnectedState = (id, mindwaveConnected) => {
-    if (!id) {
-      console.log('device id is undefined or null');
-      return;
-    }
-    if (_.findIndex(this.state.devices, ['id', id]) < 0) {
-      console.log(`device (${id}) is not in list`);
-      return;
-    }
-
-    let _state = { mindwaveConnected: id };
-    if (mindwaveConnected && this.state.willConnect) {
-      _state.willConnect = null;
-    } else {
-      _state.mindwaveConnected = null;
-    }
-
-    this.setState(_state);
-  }
-  componentWillUnmount() {
-    //clearTimeout(this.timerScan)
-    mwm.removeAllListeners();
-  }
-  componentDidMount() {
-    this.props.dispatch({ type: 'user/POST_login' });
-    console.log('run componentDidMount');
-    mwm.onConnect(this.handleConnect);
-    mwm.onDisconnect(this.handleDisconnect);
-    mwm.onFoundDevice(this.handleFoundDevice);
-    mwm.onEEGPowerLowBeta(this.handleEEGPowerLowBeta);
-    mwm.onEEGPowerDelta(this.handleEEGPowerDelta);
-    mwm.onESense(this.handleESense);
-    this.handlePressScan();
-    if (Platform.OS === 'ios') {
-      mwm.onEEGBlink(this.handleEEGBlink);
-      mwm.onMWMBaudRate(this.handleMWMBaudRate);
-    }
   }
   render() {
     const {
@@ -350,7 +288,7 @@ class Home extends Component {
         <View style={{ alignItems: 'center' }}>
           <View style={styles.qualityTitle}>
             <TouchableOpacity onPress={() => {
-              this.selectDevice();
+              this.selectDevice(this.props.deviceList ? this.props.deviceList : []);
             }}>
               <Image source={require('../images/good.png')} style={styles.imageQuality} />
             </TouchableOpacity>
@@ -368,6 +306,9 @@ class Home extends Component {
             name="EVENT 5" value={true} editable={true} />
           <MoniterSetting
             name="EVENT 6" value={true} editable={true} />
+          <TouchableOpacity onPress={() => { this.handlePressScan(); }}>
+            <Text>Scan</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -385,8 +326,8 @@ class Home extends Component {
   editUserData = (userData) => {
     this.props.dispatch({ type: 'user/POST_data', userData });
   }
-  selectDevice = () => {
-    Actions.device();
+  selectDevice = (deviceList) => {
+    Actions.device(deviceList);
   }
 }
 

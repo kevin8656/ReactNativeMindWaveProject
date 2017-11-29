@@ -4,6 +4,8 @@ import dva from 'dva-no-router';
 import router from './router';
 import user from './models/user';
 import selection from './models/selection';
+import mindwavedevice from './models/mindwavedevice';
+import mindwavedevicelist from './models/mindwavedevicelist';
 
 
 class App extends Component {
@@ -13,7 +15,9 @@ class App extends Component {
   };
   componentDidMount() {
     this.app.model(user);
-    this.app.model(selection);    
+    this.app.model(selection);
+    this.app.model(mindwavedevice);
+    this.app.model(mindwavedevicelist);
     this.app.router(router);
 
     this.setState({ init: true });
