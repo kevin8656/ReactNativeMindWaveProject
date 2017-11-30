@@ -221,9 +221,9 @@ class Home extends Component {
       var i = 0
       this.timer = setInterval(
         () => {
-          this.setState({
-            devices: []
-          });
+          // this.setState({
+          //   devices: []
+          // });
           console.log('scanning devices');
           mwm.scan();
         }, 1000)
@@ -251,19 +251,33 @@ class Home extends Component {
       }
 
       Alert.alert(
-        'Alert Title',
-        'My Alert Msg',
+        'Result',
+        'The data will be send to you and to the application owner via email',
         [
           {
-            text: 'Alert All Data', onPress: () => {
+            text: 'Send', onPress: () => {
               console.log(allData);
+              allData = [];
+              data = [];
+              allData.push(user_details);
+            },
+          },
+          {
+            text: 'Clear', onPress: () => {
+              allData = [];
+              data = [];
+              allData.push(user_details);
+            }
+          },
+          {
+            text: 'Cancel', onPress: () => {
               allData = [];
               data = [];
               allData.push(user_details);
             }
           },
         ],
-        { cancelable: true }
+        { cancelable: false }
       )
     }
   }
@@ -442,18 +456,22 @@ class Home extends Component {
             </View>
           </Modal>
           <View style={styles.qualityTitle}>
-            <TouchableOpacity onPress={() => {
-              this.setMindWaveDeviceModalVisible(true);
-            }}>
-              <Image source={require('../images/good.png')} style={styles.imageQuality} />
-            </TouchableOpacity>
-            <Text style={styles.connectionTitle}>
-              {
-                this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? 'Bad connection quality' :
-                  this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? 'Unstable connection quality' :
-                    this.props.mindwave.poorSignal <= 50 ? 'Good connection quality' : null
-              }
-            </Text>
+            <View style={styles.imageView}>
+              <TouchableOpacity onPress={() => {
+                this.setMindWaveDeviceModalVisible(true);
+              }}>
+                <Image source={require('../images/good.png')} style={styles.imageQuality} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.connectionTitleView}>
+              <Text style={styles.connectionTitle}>
+                {
+                  this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? 'Bad connection quality' :
+                    this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? 'Unstable connection quality' :
+                      this.props.mindwave.poorSignal <= 50 ? 'Good connection quality' : null
+                }
+              </Text>
+            </View>
           </View>
           <MoniterSetting
             name="SEX" id='1' value={true} editable={false} />
@@ -471,7 +489,7 @@ class Home extends Component {
             <Text>Scan</Text>
           </TouchableOpacity>
           {
-            this.state.Connected ?
+            this.state.mindwaveConnected ?
               this.state.startOrStop ?
                 null :
                 <TouchableOpacity onPress={() => {
@@ -484,7 +502,7 @@ class Home extends Component {
               : null
           }
           {
-            this.state.Connected ?
+            this.state.mindwaveConnected ?
               !this.state.startOrStop ?
                 null :
                 <TouchableOpacity onPress={() => {
@@ -540,9 +558,16 @@ const styles = StyleSheet.create({
     height: width * 0.15,
     marginRight: 13
   },
+  imageView: {
+    width: width * 0.15,
+  },
   connectionTitle: {
     fontSize: 20,
-    width: width * 0.7
+  },
+  connectionTitleView: {
+    width: width * 0.7,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textInput: {
     width: width * 0.6,
