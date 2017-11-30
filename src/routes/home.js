@@ -12,21 +12,22 @@ import {
   Platform,
   Modal,
   ListView,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Tabs from 'react-native-tabs';
 import MindWaveMobile from 'react-native-mindwave-mobile';
 import _ from 'lodash';
-
-var { height, width } = Dimensions.get('window');
+import MoniterSetting from '../components/moniterSetting';
+let _platfrom = Platform.OS === 'ios' ? true : false;
 const mwm = new MindWaveMobile();
 const isMock = false;
+const poorSignalTimerTimeMax = 5
 var { height, width } = Dimensions.get('window');
 var Settlecounter = 0;
-const poorSignalTimerTimeMax = 5
-import MoniterSetting from '../components/moniterSetting';
-
+var allData = [];
+var data = [];
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -48,97 +49,20 @@ class Home extends Component {
       isScanning: false,
       willConnect: null,
       //腦波數據
-      delta: this.props.delta ? this.props.delta : null,
-      highAlpha: this.props.highAlpha ? this.props.highAlpha : null,
-      lowAlpha: this.props.lowAlpha ? this.props.lowAlpha : null,
-      theta: this.props.theta ? this.props.theta : null,
-      lowBeta: this.props.lowBeta ? this.props.lowBeta : null,
-      midGamma: this.props.midGamma ? this.props.midGamma : null,
-      highBeta: this.props.highBeta ? this.props.highBeta : null,
-      lowGamma: this.props.lowGamma ? this.props.lowGamma : null,
-      poorSignal: this.props.poorSignal ? this.props.poorSignal : 0,
-      meditation: this.props.meditation ? this.props.meditation : 0,
-      attention: this.props.attention ? this.props.attention : 0,
+      delta: this.props.mindwave.delta ? this.props.mindwave.delta : null,
+      highAlpha: this.props.mindwave.highAlpha ? this.props.mindwave.highAlpha : null,
+      lowAlpha: this.props.mindwave.lowAlpha ? this.props.mindwave.lowAlpha : null,
+      theta: this.props.mindwave.theta ? this.props.mindwave.theta : null,
+      lowBeta: this.props.mindwave.lowBeta ? this.props.mindwave.lowBeta : null,
+      midGamma: this.props.mindwave.midGamma ? this.props.mindwave.midGamma : null,
+      highBeta: this.props.mindwave.highBeta ? this.props.mindwave.highBeta : null,
+      lowGamma: this.props.mindwave.lowGamma ? this.props.mindwave.lowGamma : null,
+      poorSignal: this.props.mindwave.poorSignal ? this.props.mindwave.poorSignal : 200,
+      meditation: this.props.mindwave.meditation ? this.props.mindwave.meditation : 0,
+      attention: this.props.mindwave.attention ? this.props.mindwave.attention : 0,
       timerCounter: 0,
-    }
-  }
-  componentWillUnmount() {
-    //clearTimeout(this.timerScan)
-    mwm.removeAllListeners();
-  }
-  componentDidMount() {
-    this.props.dispatch({ type: 'user/POST_login' });
-    console.log('run componentDidMount');
-    this.mwm = new MindWaveMobile();
-    mwm.onConnect(this.handleConnect);
-    mwm.onDisconnect(this.handleDisconnect);
-    mwm.onFoundDevice(this.handleFoundDevice);
-    mwm.onEEGPowerLowBeta(this.handleEEGPowerLowBeta);
-    mwm.onEEGPowerDelta(this.handleEEGPowerDelta);
-    mwm.onESense(this.handleESense);
-    mwm.scan();
-    if (Platform.OS === 'ios') {
-      mwm.onEEGBlink(this.handleEEGBlink);
-      mwm.onMWMBaudRate(this.handleMWMBaudRate);
-    }
-  }
-  componentWillReceiveProps(nextProps) {
-    const { user: previous_user } = this.props;
-    const { user } = nextProps;
-    if (previous_user != user) {
-      this.setState({
-        userData: user,
-      });
-    }
-    //檢查訊號值正常（poorsignal為0）
-    const { poorSignal } = nextProps;
-    //console.log('poorSignal', poorSignal);
-    if (poorSignal == 0 && !this.state.poorSignalChecked && this.state.Connected) {
-
-      //counter累加
-      Settlecounter++;
-
-      let DownSettleCounter = 5 - Settlecounter;
-      //顯示倒數
-      //ToastAndroid.show('訊號穩定！倒數' + DownSettleCounter + '秒', ToastAndroid.SHORT);
-
-      //當Settlecounter==5（需維持10次的poorsignal=0 poorsignalchecked才會通過）
-      if (Settlecounter == 5) {
-        this.setState({ poorSignalChecked: true });
-        if (poorSignal == 0) {
-          //console.log(nextProps.poorSignal)
-          this.setState({
-            poorSignal: nextProps.poorSignal,
-          })
-          //將訊號push進訊號陣列
-          // this.state.deltaArray.push(nextProps.delta)
-          // this.state.highAlphaArray.push(nextProps.highAlpha)
-          // this.state.lowAlphaArray.push(nextProps.lowAlpha)
-          // this.state.thetaArray.push(nextProps.theta)
-          // this.state.lowBetaArray.push(nextProps.lowBeta)
-          // this.state.midGammaArray.push(nextProps.midGamma)
-          // this.state.highBetaArray.push(nextProps.highBeta)
-          // this.state.lowGammaArray.push(nextProps.lowGamma)
-          console.log({
-            delta: nextProps.delta, highAlpha: nextProps.highAlpha, lowAlpha: nextProps.lowAlpha, theta: nextProps.theta,
-            lowBeta: nextProps.lowBeta, midGamma: nextProps.midGamma, highBeta: nextProps.highBeta, lowGamma: nextProps.lowGamma
-          })
-        } else {
-          this.setState({
-            poorSignal: nextProps.poorSignal,
-          })
-          console.log('訊號不正常，請調整腦波耳機穿戴位置')
-        }
-      }
-    }
-
-    //訊號不正常（poorsignal不為0）
-    if (poorSignal != 0 && !this.state.checkPoorSignal && this.state.Connected) {
-      Settlecounter = 0;
-      if (this.state.canShowToast) {
-        //ToastAndroid.show('請避免頭部晃動', ToastAndroid.SHORT);
-        this.setState({ canShowToast: false })
-      }
+      //Start & Stop按鈕
+      startOrStop: false,
     }
   }
   //----腦波操作function----
@@ -149,8 +73,6 @@ class Home extends Component {
   }
   //尋找腦波耳機裝置
   handleFoundDevice = (device) => {
-    console.log('on found deviceId ', device.id);
-    console.log(device);
     this.pushDevice(device);
   }
   //將掃描到的裝置放入裝置清單中
@@ -177,6 +99,8 @@ class Home extends Component {
     }
     this.setState({
       willConnect: device.id,
+    }, () => {
+      console.log(`IN handlePressConnectDevice willConnect=${this.state.willConnect}`);
     });
     if (isMock) {
       setTimeout(() => {
@@ -224,34 +148,50 @@ class Home extends Component {
       console.log('no connecting device');
       return;
     }
+    console.log(`mindwaveConnected=${this.state.mindwaveConnected}`);
+    console.log(`willConnect=${this.state.willConnect}`);
     this.changeConnectedState(this.state.mindwaveConnected, false)
   }
   handleEEGPowerLowBeta = (data) => {
-    console.log('onEEGPowerLowBeta', data);
-    //this.props.onEEGPowerLowBeta(data);
+    //console.log('onEEGPowerLowBeta', data);
+    this.props.dispatch({
+      type: 'mindwave/on_eeg_power_lowbeta',
+      lowBeta: data.lowBeta, midGamma: data.midGamma,
+      highBeta: data.highBeta, lowGamma: data.lowGamma
+    });
   }
 
   handleEEGPowerDelta = (data) => {
-    console.log('onEEGPowerDelta', data);
-    this.setState({
-      mindwaveTimer: this.state.mindwaveTimer + 1
-    })
-    //this.props.onEEGPowerDelta(data, this.state.mindwaveTimer)
+    //console.log('onEEGPowerDelta', data);
+    this.props.dispatch({
+      type: 'mindwave/on_eeg_power_delta',
+      delta: data.delta, highAlpha: data.highAlpha,
+      lowAlpha: data.lowAplpha, theta: data.theta
+    });
   }
 
   handleESense = (data) => {
-    console.log('onESense', data);
+    //console.log('onESense', data);
     if (data.poorSignal != -1) {
-      //this.props.onESense(data);
+      this.setState({
+        mindwaveTimer: this.state.mindwaveTimer + 1
+      })
+      this.props.dispatch({
+        type: 'mindwave/on_esence',
+        poorSignal: data.poorSignal,
+        meditation: data.meditation,
+        attention: data.attention,
+        mindwaveTimer: this.state.mindwaveTimer
+      });
     }
   }
-  handleEEGBlink = (data) => {
-    console.log('onEEGBlink', data);
-  }
+  // handleEEGBlink = (data) => {
+  //   console.log('onEEGBlink', data);
+  // }
 
-  handleMWMBaudRate = (data) => {
-    console.log('onMWMBaudRate', data);
-  }
+  // handleMWMBaudRate = (data) => {
+  //   console.log('onMWMBaudRate', data);
+  // }
   changeConnectedState = (id, mindwaveConnected) => {
     if (!id) {
       console.log('device id is undefined or null');
@@ -272,9 +212,137 @@ class Home extends Component {
     this.setState(_state);
   }
   setMindWaveDeviceModalVisible(visible) {
-    this.setState({ mindwaveDeviceModalVisible: visible });
+    this.setState({
+      mindwaveDeviceModalVisible: visible,
+      devices: []
+    });
     mwm.scan();
+    if (visible) {
+      var i = 0
+      this.timer = setInterval(
+        () => {
+          this.setState({
+            devices: []
+          });
+          console.log('scanning devices');
+          mwm.scan();
+        }, 1000)
+    } else {
+      clearTimeout(this.timer)
+    }
+
   }
+  changeButtonState(changeStartAndStop) {
+    if (changeStartAndStop) {
+      this.setState({
+        startOrStop: true
+      })
+    } else {
+      this.setState({
+        startOrStop: false,
+      })
+      allData.push({ data: data })
+      var user_details = {
+        user_details: {
+          name: this.props.user.name,
+          email: this.props.user.email,
+          phone: this.props.user.phone
+        }
+      }
+
+      Alert.alert(
+        'Alert Title',
+        'My Alert Msg',
+        [
+          {
+            text: 'Alert All Data', onPress: () => {
+              console.log(allData);
+              allData = [];
+              data = [];
+              allData.push(user_details);
+            }
+          },
+        ],
+        { cancelable: true }
+      )
+    }
+  }
+  componentWillUnmount() {
+    //clearTimeout(this.timerScan)
+    mwm.removeAllListeners();
+  }
+  componentDidMount() {
+    this.mwm = new MindWaveMobile();
+    mwm.onConnect(this.handleConnect);
+    mwm.onDisconnect(this.handleDisconnect);
+    mwm.onFoundDevice(this.handleFoundDevice);
+    mwm.onEEGPowerLowBeta(this.handleEEGPowerLowBeta);
+    mwm.onEEGPowerDelta(this.handleEEGPowerDelta);
+    mwm.onESense(this.handleESense);
+    // if (Platform.OS === 'ios') {
+    //   mwm.onEEGBlink(this.handleEEGBlink);
+    //   mwm.onMWMBaudRate(this.handleMWMBaudRate);
+    // }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { user: previous_user } = this.props;
+    const { user } = nextProps;
+    if (previous_user != user) {
+      var user_details = {
+        user_details: {
+          name: user.name,
+          email: user.email,
+          phone: user.phone
+        }
+      }
+      if (allData.length != 0) {
+        allData.pop();
+        allData.push(user_details);
+      } else {
+        allData.push(user_details);
+      }
+      console.log(allData);
+      this.setState({
+        userData: user,
+      });
+    }
+    //檢查訊號值正常（poorsignal為0）
+    const { poorSignal } = nextProps.mindwave;
+    const { mindwaveTimer: previous_mindwaveTimer } = this.props.mindwave;
+    const { mindwaveTimer } = nextProps.mindwave;
+    const { selection } = nextProps;
+    const { selection: previous_selection } = this.props;
+    if (previous_selection != selection) {
+      console.log(selection);
+    }
+    if (previous_mindwaveTimer != mindwaveTimer) {
+      if (this.state.startOrStop) {
+        console.log(this.props.selection.name);
+        data.push(
+          {
+            "low_gamma": nextProps.mindwave.lowGamma,
+            "mid_gamma": nextProps.mindwave.midGamma,
+            "meditation": nextProps.mindwave.meditation,
+            "high_beta": nextProps.mindwave.highBeta,
+            "low_beta": nextProps.mindwave.lowBeta,
+            "delta": nextProps.mindwave.delta,
+            "attention": nextProps.mindwave.attention,
+            "theta": nextProps.mindwave.theta,
+            "low_alpha": nextProps.mindwave.lowAlpha,
+            "high_alpha": nextProps.mindwave.highAlpha,
+            "event_name": this.props.selection.name,
+            "event_id": this.props.selection.id
+          }
+        );
+      }
+      console.log({
+        delta: nextProps.mindwave.delta, highAlpha: nextProps.mindwave.highAlpha, lowAlpha: nextProps.mindwave.lowAlpha, theta: nextProps.mindwave.theta,
+        lowBeta: nextProps.mindwave.lowBeta, midGamma: nextProps.mindwave.midGamma, highBeta: nextProps.mindwave.highBeta, lowGamma: nextProps.mindwave.lowGamma,
+        meditation: nextProps.mindwave.meditation, attention: nextProps.mindwave.attention, poorSignal: poorSignal
+      })
+    }
+  }
+
   render() {
     const {
       name, email, phone
@@ -290,7 +358,8 @@ class Home extends Component {
             placeholder="Your Name"
             value={name}
             autoCapitalize="none"
-            style={styles.textInput}
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
             onChangeText={
               (name) =>
                 this.setState({
@@ -303,7 +372,8 @@ class Home extends Component {
             placeholder="Your Email"
             value={email}
             autoCapitalize="none"
-            style={styles.textInput}
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
             onChangeText={
               (email) =>
                 this.setState({
@@ -315,7 +385,8 @@ class Home extends Component {
           <TextInput
             placeholder="Phone number"
             value={phone}
-            style={styles.textInput}
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
             keyboardType='number-pad'
             onChangeText={
               (phone) =>
@@ -325,12 +396,11 @@ class Home extends Component {
                     phone
                   }
                 })} />
-          <View style={styles.button}>
-            <Button onPress={() => { this.editUserData(this.state.userData) }}
-              title="Save"
-              color="gray"
-            />
-          </View>
+          <TouchableOpacity onPress={() => { this.editUserData(this.state.userData) }}>
+            <View style={styles.button}>
+              <Text>Save</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       );
     } else {
@@ -357,11 +427,14 @@ class Home extends Component {
               <Text>{this.props.mindwavedevice ? this.props.mindwavedevice.id : null}</Text>
               <ScrollView style={styles.deviceList} >
                 {
+
                   this.state.devices.map((device, index) => {
                     const handlePress = () => this.state.mindwaveConnected ? this.handlePressDisconnectDevice() : this.handlePressConnectDevice(device);
                     const message = `裝置 ${device.name || device.id} ${this.state.willConnect === device.id ? '[正在連結]' : this.state.mindwaveConnected === device.id ? '[已連結]' : ''}`
                     return <TouchableOpacity key={index} style={styles.deviceItem} onPress={handlePress} >
-                      <Text style={styles.deviceItemTitle} >{message}</Text>
+                      <View style={styles.view}>
+                        <Text style={styles.deviceItemTitle} >{message}</Text>
+                      </View>
                     </TouchableOpacity>
                   })
                 }
@@ -370,29 +443,62 @@ class Home extends Component {
           </Modal>
           <View style={styles.qualityTitle}>
             <TouchableOpacity onPress={() => {
-              //this.selectDevice(this.props.deviceList ? this.props.deviceList : []);
               this.setMindWaveDeviceModalVisible(true);
             }}>
               <Image source={require('../images/good.png')} style={styles.imageQuality} />
             </TouchableOpacity>
-            <Text style={styles.connectionTitle}>Good connection quality</Text>
+            <Text style={styles.connectionTitle}>
+              {
+                this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? 'Bad connection quality' :
+                  this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? 'Unstable connection quality' :
+                    this.props.mindwave.poorSignal <= 50 ? 'Good connection quality' : null
+              }
+            </Text>
           </View>
           <MoniterSetting
-            name="SEX" value={true} editable={false} />
+            name="SEX" id='1' value={true} editable={false} />
           <MoniterSetting
-            name="FOOD" value={true} editable={false} />
+            name="FOOD" id='2' value={true} editable={false} />
           <MoniterSetting
-            name="SHOPPING" value={true} editable={false} />
+            name="SHOPPING" id='3' value={true} editable={false} />
           <MoniterSetting
-            name="EVENT 4" value={true} editable={true} />
+            name="EVENT 4" id='4' value={true} editable={true} />
           <MoniterSetting
-            name="EVENT 5" value={true} editable={true} />
+            name="EVENT 5" id='5' value={true} editable={true} />
           <MoniterSetting
-            name="EVENT 6" value={true} editable={true} />
+            name="EVENT 6" id='6' value={true} editable={true} />
           <TouchableOpacity onPress={() => { this.handlePressScan(); }}>
             <Text>Scan</Text>
           </TouchableOpacity>
+          {
+            this.state.Connected ?
+              this.state.startOrStop ?
+                null :
+                <TouchableOpacity onPress={() => {
+                  this.changeButtonState(true);
+                }}>
+                  <View style={styles.startButton}>
+                    <Text>Start</Text>
+                  </View>
+                </TouchableOpacity>
+              : null
+          }
+          {
+            this.state.Connected ?
+              !this.state.startOrStop ?
+                null :
+                <TouchableOpacity onPress={() => {
+                  this.changeButtonState(false);
+                }}>
+                  <View style={styles.stopButton}>
+                    <Text>Stop</Text>
+                  </View>
+                </TouchableOpacity>
+              : null
+          }
+
         </View>
+
       );
     }
     return (
@@ -408,9 +514,6 @@ class Home extends Component {
   }
   editUserData = (userData) => {
     this.props.dispatch({ type: 'user/POST_data', userData });
-  }
-  selectDevice = (deviceList) => {
-    Actions.device(deviceList);
   }
 }
 
@@ -438,11 +541,12 @@ const styles = StyleSheet.create({
     marginRight: 13
   },
   connectionTitle: {
-    fontSize: 20
+    fontSize: 20,
+    width: width * 0.7
   },
   textInput: {
     width: width * 0.6,
-    height: 30,
+    height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     paddingLeft: 5,
@@ -450,11 +554,14 @@ const styles = StyleSheet.create({
     // backgroundColor:'white'
     marginBottom: 20
   },
+  iosHeight: {
+    height: 30
+  },
   button: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 18,
+    paddingRight: 18,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'gray',
@@ -464,18 +571,39 @@ const styles = StyleSheet.create({
   topbarView: {
     marginTop: 20
   },
-  topbarText: {
-  },
-  mindwaveTitle: {
-  },
-  deviceTitle: {
+  view: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    width: width
   },
   deviceList: {
+    borderTopWidth: 1,
+    borderColor: 'gray',
+    width: width,
+    marginTop: 20
   },
-  deviceItem: {
+  startButton: {
+    width: width * 0.2,
+    height: height * 0.1,
+    backgroundColor: 'green',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
   },
-  deviceItemTitle: {
-  },
+  stopButton: {
+    width: width * 0.2,
+    height: height * 0.1,
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  }
+
 });
 
 export default connect(state => state)(Home);

@@ -4,6 +4,7 @@ import dva from 'dva-no-router';
 import router from './router';
 import user from './models/user';
 import selection from './models/selection';
+import mindwave from './models/mindwave';
 
 
 class App extends Component {
@@ -14,6 +15,7 @@ class App extends Component {
   componentDidMount() {
     this.app.model(user);
     this.app.model(selection);
+    this.app.model(mindwave);
     this.app.router(router);
 
     this.setState({ init: true });

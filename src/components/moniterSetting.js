@@ -6,11 +6,12 @@ import {
     View,
     TextInput,
     Dimensions,
-    Switch
+    Switch,
+    Platform
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 var { height, width } = Dimensions.get('window');
-
+let _platfrom = Platform.OS === 'ios' ? true : false;
 class MoniterSetting extends Component {
     constructor() {
         super();
@@ -22,7 +23,8 @@ class MoniterSetting extends Component {
         this.setState({
             selection: {
                 ...this.state.selection,
-                name: this.props.name
+                name: this.props.name,
+                id: this.props.id
             }
         })
     }
@@ -32,13 +34,14 @@ class MoniterSetting extends Component {
                 value={this.props.name}
                 style={styles.textInput}
                 editable={this.props.editable}
+                style={[styles.textInput, _platfrom && styles.iosHeight]}
+                underlineColorAndroid='transparent'
                 autoCapitalize="none" />
             <Switch
                 disabled={false}
                 value={(this.props.name == this.props.selection.name) ? true : false}
                 style={styles.switch}
                 onValueChange={(value) => { this.editUserData(this.state.selection); }} />
-            {console.log(this.props)}
         </View>
     }
     editUserData = (selection) => {
@@ -54,11 +57,14 @@ const styles = StyleSheet.create({
     },
     textInput: {
         width: width * 0.7,
-        height: 30,
+        height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         fontFamily: 'Euphemia UCAS',
-        color:'gray'
+        color: 'gray'
+    },
+    iosHeight: {
+        height: 30
     },
     switch: {
         marginLeft: 10,

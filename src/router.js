@@ -9,10 +9,8 @@ import {
   Scene,
   Stack,
 } from 'react-native-router-flux';
-
 import Home from './routes/home';
 import Login from './routes/login';
-import Device from './routes/device';
 
 const DvaRouter = connect()(props => {
   const reducerCreate = params => {

@@ -1,15 +1,14 @@
-
-
 export default {
   namespace: 'selection',
   state: {
     name: 'SEX',
+    id: '1'
   },
   reducers: {
     saveSelection(state, action) {
       return {
         ...state,
-        ...action.selection,     
+        ...action.selection,
       };
     },
   },

@@ -6,12 +6,15 @@ import {
   View,
   Button,
   TextInput,
-  Dimensions
+  Dimensions,
+  TouchableOpacity,
+  Platform,
+  Keyboard
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 var { height, width } = Dimensions.get('window');
 import MindWaveMobile from 'react-native-mindwave-mobile';
-
+let _platfrom = Platform.OS === 'ios' ? true : false;
 const mwm = new MindWaveMobile()
 
 class Login extends Component {
@@ -38,6 +41,8 @@ class Login extends Component {
         value={this.state.name}
         style={styles.textInput}
         autoCapitalize="none"
+        style={[styles.textInput, _platfrom && styles.iosHeight]}
+        underlineColorAndroid='transparent'
         onChangeText={
           (name) =>
             this.setState({
@@ -51,6 +56,8 @@ class Login extends Component {
         value={this.state.email}
         style={styles.textInput}
         autoCapitalize="none"
+        style={[styles.textInput, _platfrom && styles.iosHeight]}
+        underlineColorAndroid='transparent'
         onChangeText={
           (email) =>
             this.setState({
@@ -62,8 +69,9 @@ class Login extends Component {
       <TextInput
         placeholder="Phone number"
         value={this.state.phone}
-        style={styles.textInput}
         keyboardType='number-pad'
+        style={[styles.textInput, _platfrom && styles.iosHeight]}
+        underlineColorAndroid='transparent'
         onChangeText={
           (phone) =>
             this.setState({
@@ -72,12 +80,11 @@ class Login extends Component {
                 phone
               }
             })} />
-      <View style={styles.button}>
-        <Button onPress={() => { this.createUserData(this.state.userData) }}
-          title="Let's Play"
-          color="gray"
-        />
-      </View>
+      <TouchableOpacity onPress={() => { this.createUserData(this.state.userData) }}>
+        <View style={styles.button}>
+          <Text>Let's Play</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   }
   createUserData = (userData) => {
@@ -100,7 +107,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: width * 0.6,
-    height: 30,
+    height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     paddingLeft: 5,
@@ -108,17 +115,19 @@ const styles = StyleSheet.create({
     // backgroundColor:'white'
     marginBottom: 20
   },
+  iosHeight: {
+    height: 30
+  },
   button: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 18,
+    paddingRight: 18,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'gray',
     backgroundColor: 'white',
     marginTop: 10,
-
   },
 });
 
