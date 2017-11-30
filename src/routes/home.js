@@ -10,6 +10,9 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  Modal,
+  ListView,
+  ScrollView
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Tabs from 'react-native-tabs';
@@ -17,7 +20,7 @@ import MindWaveMobile from 'react-native-mindwave-mobile';
 import _ from 'lodash';
 
 var { height, width } = Dimensions.get('window');
-const mwm = new MindWaveMobile()
+const mwm = new MindWaveMobile();
 const isMock = false;
 var { height, width } = Dimensions.get('window');
 var Settlecounter = 0;
@@ -30,11 +33,12 @@ class Home extends Component {
     this.state = {
       userData: {},
       page: 'settings',
-
+      mindwaveDeviceModalVisible: false,
       //確認裝置連接
       defaultPage: true,
       PrestartTest: false,
       deviceFound: false,
+      mindwaveConnected: false,
       devices: [],
       mindwaveTimer: 0,
       //確認訊號值歸零
@@ -42,6 +46,7 @@ class Home extends Component {
       poorSignalTimer: poorSignalTimerTimeMax,
       Connected: false,
       isScanning: false,
+      willConnect: null,
       //腦波數據
       delta: this.props.delta ? this.props.delta : null,
       highAlpha: this.props.highAlpha ? this.props.highAlpha : null,
@@ -64,12 +69,14 @@ class Home extends Component {
   componentDidMount() {
     this.props.dispatch({ type: 'user/POST_login' });
     console.log('run componentDidMount');
+    this.mwm = new MindWaveMobile();
     mwm.onConnect(this.handleConnect);
     mwm.onDisconnect(this.handleDisconnect);
     mwm.onFoundDevice(this.handleFoundDevice);
     mwm.onEEGPowerLowBeta(this.handleEEGPowerLowBeta);
     mwm.onEEGPowerDelta(this.handleEEGPowerDelta);
     mwm.onESense(this.handleESense);
+    mwm.scan();
     if (Platform.OS === 'ios') {
       mwm.onEEGBlink(this.handleEEGBlink);
       mwm.onMWMBaudRate(this.handleMWMBaudRate);
@@ -137,23 +144,13 @@ class Home extends Component {
   //----腦波操作function----
   //掃描裝置
   handlePressScan = () => {
-    if (isMock) {
-      setTimeout(() => {
-        this.handleFoundDevice({
-          id: 'test1234',
-        });
-      }, 1000);
-      console.log('mock');
-    } else {
-      mwm.scan();
-      console.log('scan');
-    }
+    mwm.scan();
+    console.log('scan');
   }
   //尋找腦波耳機裝置
   handleFoundDevice = (device) => {
     console.log('on found deviceId ', device.id);
     console.log(device);
-
     this.pushDevice(device);
   }
   //將掃描到的裝置放入裝置清單中
@@ -171,19 +168,48 @@ class Home extends Component {
     this.setState({
       devices: this.state.devices,
     });
-    this.props.dispatch({ type: 'mindwavedevicelist/save_mindwaveDeviceList', deviceList: this.state.devices });
+  }
+  //點擊後連接到Device
+  handlePressConnectDevice = (device) => {
+    if (!device.id) {
+      console.error('can not connect no id device');
+      return;
+    }
+    this.setState({
+      willConnect: device.id,
+    });
+    if (isMock) {
+      setTimeout(() => {
+        this.handleConnect({ success: true });
+      }, 2000);
+    } else {
+      this.mwm.connect(device.id);
+    }
+  }
+  //點擊後關閉裝置連接
+  handlePressDisconnectDevice = () => {
+    if (!this.state.mindwaveConnected) {
+      console.log('no connecting device');
+      return;
+    }
+    if (isMock) {
+      this.handleDisconnect({ success: true });
+    } else {
+      this.mwm.disconnect();
+    }
   }
   //連接腦波耳機
   handleConnect = ({ success }) => {
     console.log(`連結 ${success ? '成功' : '失敗'}`);
     //alert(`連結 ${success ? '成功' : '失敗'}`);
     //ToastAndroid.show(`連結 ${success ? '成功' : '失敗'}`, ToastAndroid.SHORT);
-    if (success) {
+    if (success && this.state.willConnect) {
+      this.changeConnectedState(this.state.willConnect, true);
       this.setState({
         Connected: true,
       });
     } else {
-      console.log('connect faild');
+      console.log('will connect device is null');
     }
   }
   //關閉腦波耳機連接
@@ -191,13 +217,14 @@ class Home extends Component {
     console.log(`移除連結 ${success ? '成功' : '失敗'}`);
     //alert(`移除連結 ${success ? '成功' : '失敗'}`);
     //ToastAndroid.show(`移除連結 ${success ? '成功' : '失敗'}`, ToastAndroid.SHORT);
-    if (success && !this.state.Connected) {
+    if (success && !this.state.mindwaveConnected) {
       this.setState({
         Connected: false,
       });
-      console.log('disconnecting device');
+      console.log('no connecting device');
       return;
     }
+    this.changeConnectedState(this.state.mindwaveConnected, false)
   }
   handleEEGPowerLowBeta = (data) => {
     console.log('onEEGPowerLowBeta', data);
@@ -224,6 +251,29 @@ class Home extends Component {
 
   handleMWMBaudRate = (data) => {
     console.log('onMWMBaudRate', data);
+  }
+  changeConnectedState = (id, mindwaveConnected) => {
+    if (!id) {
+      console.log('device id is undefined or null');
+      return;
+    }
+    if (_.findIndex(this.state.devices, ['id', id]) < 0) {
+      console.log(`device (${id}) is not in list`);
+      return;
+    }
+
+    let _state = { mindwaveConnected: id };
+    if (mindwaveConnected && this.state.willConnect) {
+      _state.willConnect = null;
+    } else {
+      _state.mindwaveConnected = null;
+    }
+
+    this.setState(_state);
+  }
+  setMindWaveDeviceModalVisible(visible) {
+    this.setState({ mindwaveDeviceModalVisible: visible });
+    mwm.scan();
   }
   render() {
     const {
@@ -284,11 +334,44 @@ class Home extends Component {
         </View>
       );
     } else {
+      const { account, name, token } = this.props.user;
+      const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+      var mineWave = ds.cloneWithRows({ 1: 'MineWave1', 2: 'MineWave2' });
       pageElement = (
+
         <View style={{ alignItems: 'center' }}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.mindwaveDeviceModalVisible}
+            onRequestClose={() => { alert("Modal has been closed.") }}
+          >
+            <View style={styles.container}>
+              <View style={styles.topbarView}>
+                <TouchableOpacity onPress={() => this.setMindWaveDeviceModalVisible(false)}>
+                  <Text style={styles.topbarText}>結束</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.mindwaveTitle}>正在掃描附近裝置</Text>
+              <Text style={styles.deviceTitle} >裝置列表</Text>
+              <Text>{this.props.mindwavedevice ? this.props.mindwavedevice.id : null}</Text>
+              <ScrollView style={styles.deviceList} >
+                {
+                  this.state.devices.map((device, index) => {
+                    const handlePress = () => this.state.mindwaveConnected ? this.handlePressDisconnectDevice() : this.handlePressConnectDevice(device);
+                    const message = `裝置 ${device.name || device.id} ${this.state.willConnect === device.id ? '[正在連結]' : this.state.mindwaveConnected === device.id ? '[已連結]' : ''}`
+                    return <TouchableOpacity key={index} style={styles.deviceItem} onPress={handlePress} >
+                      <Text style={styles.deviceItemTitle} >{message}</Text>
+                    </TouchableOpacity>
+                  })
+                }
+              </ScrollView>
+            </View>
+          </Modal>
           <View style={styles.qualityTitle}>
             <TouchableOpacity onPress={() => {
-              this.selectDevice(this.props.deviceList ? this.props.deviceList : []);
+              //this.selectDevice(this.props.deviceList ? this.props.deviceList : []);
+              this.setMindWaveDeviceModalVisible(true);
             }}>
               <Image source={require('../images/good.png')} style={styles.imageQuality} />
             </TouchableOpacity>
@@ -377,7 +460,21 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     backgroundColor: 'white',
     marginTop: 10,
-
+  },
+  topbarView: {
+    marginTop: 20
+  },
+  topbarText: {
+  },
+  mindwaveTitle: {
+  },
+  deviceTitle: {
+  },
+  deviceList: {
+  },
+  deviceItem: {
+  },
+  deviceItemTitle: {
   },
 });
 

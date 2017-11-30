@@ -37,10 +37,6 @@ export default () => {
         <Stack key="root">
           <Scene key="home" component={Home} hideNavBar={true} />
         </Stack>
-        <Stack key="device">
-          <Scene key="deviceMain" component={Device} title="Devices"
-            onLeft={() => Actions.pop()} leftTitle="Close" />
-        </Stack>
       </Modal>
     </Overlay>
   </DvaRouter>
