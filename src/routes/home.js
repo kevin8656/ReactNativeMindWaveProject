@@ -13,7 +13,8 @@ import {
   Modal,
   ListView,
   ScrollView,
-  Alert
+  Alert,
+  KeyboardAvoidingView
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Tabs from 'react-native-tabs';
@@ -71,6 +72,7 @@ class Home extends Component {
     console.log('scan');
   }
   handleFoundDevice = (device) => {
+    console.log(`device=${device.id}`);
     this.pushDevice(device);
   }
   pushDevice = (device) => {
@@ -409,109 +411,115 @@ class Home extends Component {
       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
       var mineWave = ds.cloneWithRows({ 1: 'MineWave1', 2: 'MineWave2' });
       pageElement = (
+        <KeyboardAvoidingView behavior='position'>
+          <View style={{ alignItems: 'center' }}>
+            <Modal
+              animationType="slide"
+              transparent={false}
+              visible={this.state.mindwaveDeviceModalVisible}
+              onRequestClose={() => { alert("Modal has been closed.") }}
+            >
+              <View style={styles.container}>
+                <View style={styles.topbarView}>
+                  <TouchableOpacity style={styles.topbarText} onPress={() => this.setMindWaveDeviceModalVisible(false)}>
+                    <Text style={{ fontSize: 23, color: '#82eaff' }}>Close</Text>
+                  </TouchableOpacity>
+                  <View style={styles.deviceTitle} >
+                    <Text style={{ fontSize: 23 }}>Devices</Text>
+                  </View>
+                  <View style={{ flex: 1 }} >
+                  </View>
+                </View>
 
-        <View style={{ alignItems: 'center' }}>
-          <Modal
-            animationType="slide"
-            transparent={false}
-            visible={this.state.mindwaveDeviceModalVisible}
-            onRequestClose={() => { alert("Modal has been closed.") }}
-          >
-            <View style={styles.container}>
-              <View style={styles.topbarView}>
-                <TouchableOpacity onPress={() => this.setMindWaveDeviceModalVisible(false)}>
-                  <Text style={styles.topbarText}>Close</Text>
-                </TouchableOpacity>
+                <Text>{this.props.mindwavedevice ? this.props.mindwavedevice.id : null}</Text>
+                <ScrollView style={styles.deviceList} >
+                  {
+
+                    this.state.devices.map((device, index) => {
+                      const handlePress = () => this.state.mindwaveConnected ? this.handlePressDisconnectDevice() : this.handlePressConnectDevice(device);
+                      const message = `Device : ${device.name || device.id}`
+                      return <TouchableOpacity key={index} style={styles.view} onPress={handlePress} >
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+                          <View style={{ flex: 0.7 }}>
+                            <Text style={{ fontSize: 15 }}>{message}</Text>
+                          </View>
+                          <View style={{ flex: 0.3, alignItems: 'flex-end' }}>
+                            {this.state.mindwaveConnected == device.id ? <Image source={require('../images/check.png')} style={styles.imageCheck} /> : null}
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    })
+                  }
+                </ScrollView>
               </View>
-              <Text style={styles.mindwaveTitle}>Scanning Devices...</Text>
-              <Text style={styles.deviceTitle} >Devices</Text>
-              <Text>{this.props.mindwavedevice ? this.props.mindwavedevice.id : null}</Text>
-              <ScrollView style={styles.deviceList} >
-                {
-
-                  this.state.devices.map((device, index) => {
-                    const handlePress = () => this.state.mindwaveConnected ? this.handlePressDisconnectDevice() : this.handlePressConnectDevice(device);
-                    const message = `Device  ${device.name || device.id} ${this.state.willConnect === device.id ? '[Connecting...]' : this.state.mindwaveConnected === device.id ? '[Connected]' : ''}`
-                    return <TouchableOpacity key={index} style={styles.deviceItem} onPress={handlePress} >
-                      <View style={styles.view}>
-                        <Text style={styles.deviceItemTitle} >{message}</Text>
-                      </View>
+            </Modal>
+            <View style={styles.qualityTitle}>
+              {
+                this.state.startOrStop ?
+                  <View style={styles.imageView}>
+                    <Image source={require('../images/good.png')} style={styles.imageQuality} />
+                  </View>
+                  :
+                  <View style={styles.imageView}>
+                    <TouchableOpacity onPress={() => {
+                      this.setMindWaveDeviceModalVisible(true);
+                    }}>
+                      <Image source={require('../images/good.png')} style={styles.imageQuality} />
                     </TouchableOpacity>
-                  })
-                }
-              </ScrollView>
+                  </View>
+              }
+              <View style={styles.connectionTitleView}>
+                <Text style={styles.connectionTitle}>
+                  {
+                    this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? 'Bad connection quality' :
+                      this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? 'Unstable connection quality' :
+                        this.props.mindwave.poorSignal <= 50 ? 'Good connection quality' : null
+                  }
+                </Text>
+              </View>
             </View>
-          </Modal>
-          <View style={styles.qualityTitle}>
-            <View style={styles.imageView}>
-              <TouchableOpacity onPress={() => {
-                this.setMindWaveDeviceModalVisible(true);
-              }}>
-                <Image source={require('../images/good.png')} style={styles.imageQuality} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.connectionTitleView}>
-              <Text style={styles.connectionTitle}>
-                {
-                  this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? 'Bad connection quality' :
-                    this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? 'Unstable connection quality' :
-                      this.props.mindwave.poorSignal <= 50 ? 'Good connection quality' : null
-                }
-              </Text>
-            </View>
+            <MoniterSetting
+              name="SEX" id='1' value={true} editable={false} disabled={this.state.startOrStop} />
+            <MoniterSetting
+              name="FOOD" id='2' value={true} editable={false} disabled={this.state.startOrStop} />
+            <MoniterSetting
+              name="SHOPPING" id='3' value={true} editable={false} disabled={this.state.startOrStop} />
+            <MoniterSetting
+              name="EVENT 4" id='4' value={true} editable={this.state.startOrStop ? false : true} disabled={this.state.startOrStop} />
+            <MoniterSetting
+              name="EVENT 5" id='5' value={true} editable={this.state.startOrStop ? false : true} disabled={this.state.startOrStop} />
+            <MoniterSetting
+              name="EVENT 6" id='6' value={true} editable={this.state.startOrStop ? false : true} disabled={this.state.startOrStop} />
+            {
+              this.state.mindwaveConnected ?
+                this.state.startOrStop ?
+                  null : <TouchableOpacity onPress={() => { this.changeButtonState(true); }}>
+                    <View style={styles.startButton}>
+                      <Image source={require('../images/start.png')} style={styles.startImage} />
+                    </View>
+                  </TouchableOpacity>
+                : null
+            }
+            {
+              this.state.mindwaveConnected ?
+                !this.state.startOrStop ?
+                  null : <TouchableOpacity onPress={() => { this.changeButtonState(false); }}>
+                    <View style={styles.stopButton}>
+                      <Image source={require('../images/stop.png')} style={stＦyles.startImage} />
+                    </View>
+                  </TouchableOpacity>
+                : null
+            }
           </View>
-          <MoniterSetting
-            name="SEX" id='1' value={true} editable={false} />
-          <MoniterSetting
-            name="FOOD" id='2' value={true} editable={false} />
-          <MoniterSetting
-            name="SHOPPING" id='3' value={true} editable={false} />
-          <MoniterSetting
-            name="EVENT 4" id='4' value={true} editable={true} />
-          <MoniterSetting
-            name="EVENT 5" id='5' value={true} editable={true} />
-          <MoniterSetting
-            name="EVENT 6" id='6' value={true} editable={true} />
-          <TouchableOpacity onPress={() => { this.handlePressScan(); }}>
-            <Text>Scan</Text>
-          </TouchableOpacity>
-          {
-            this.state.mindwaveConnected ?
-              this.state.startOrStop ?
-                null :
-                <TouchableOpacity onPress={() => {
-                  this.changeButtonState(true);
-                }}>
-                  <View style={styles.startButton}>
-                    <Text>Start</Text>
-                  </View>
-                </TouchableOpacity>
-              : null
-          }
-          {
-            this.state.mindwaveConnected ?
-              !this.state.startOrStop ?
-                null :
-                <TouchableOpacity onPress={() => {
-                  this.changeButtonState(false);
-                }}>
-                  <View style={styles.stopButton}>
-                    <Text>Stop</Text>
-                  </View>
-                </TouchableOpacity>
-              : null
-          }
-
-        </View>
-
+        </KeyboardAvoidingView>
       );
     }
     return (
       <View style={styles.container}>
         <Tabs selected={this.state.page} style={{ backgroundColor: 'white' }}
           selectedStyle={{ color: 'red' }} onSelect={el => this.setState({ page: el.props.name })}>
-          <Text name="monitor" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red' }}>Monitor</Text>
-          <Text name="settings" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red' }}>Settings</Text>
+          <Text name="monitor" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Monitor</Text>
+          <Text name="settings" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Settings</Text>
         </Tabs>
         {pageElement}
       </View>
@@ -540,6 +548,11 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 35,
   },
+  imageCheck: {
+    width: width * 0.05,
+    height: width * 0.05,
+    marginLeft: 13,
+  },
   imageQuality: {
     width: width * 0.15,
     height: width * 0.15,
@@ -547,6 +560,10 @@ const styles = StyleSheet.create({
   },
   imageView: {
     width: width * 0.15,
+  },
+  startImage: {
+    width: width * 0.2,
+    height: width * 0.2,
   },
   connectionTitle: {
     fontSize: 20,
@@ -558,13 +575,13 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: width * 0.6,
-    height: 40,
+    height: width * 0.1,
     borderColor: 'gray',
     borderWidth: 1,
     paddingLeft: 5,
     fontFamily: 'Euphemia UCAS',
     // backgroundColor:'white'
-    marginBottom: 20
+    marginBottom: 18
   },
   iosHeight: {
     height: 30
@@ -581,41 +598,49 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   topbarView: {
-    marginTop: 20
+    paddingTop: 20,
+    paddingBottom: 10,
+    borderWidth: 1,
+    borderBottomColor: '#d6d6d4',
+    flexDirection: 'row',
+    backgroundColor: '#f4f4f4'
+  },
+  topbarText: {
+    marginLeft: 10,
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start'
+  },
+  deviceTitle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   view: {
     flexDirection: 'row',
     paddingHorizontal: 10,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderColor: 'gray',
+    borderColor: '#d6d6d4',
     width: width
   },
   deviceList: {
     borderTopWidth: 1,
-    borderColor: 'gray',
+    borderColor: '#d6d6d4',
     width: width,
-    marginTop: 20
+    marginTop: 10
   },
   startButton: {
-    width: width * 0.2,
-    height: height * 0.1,
-    backgroundColor: 'green',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
 
   },
   stopButton: {
-    width: width * 0.2,
-    height: height * 0.1,
-    backgroundColor: 'red',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-
   }
-
 });
 
 export default connect(state => state)(Home);

@@ -107,13 +107,13 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: width * 0.6,
-    height: 40,
+    height: width * 0.1,
     borderColor: 'gray',
     borderWidth: 1,
     paddingLeft: 5,
     fontFamily: 'Euphemia UCAS',
     // backgroundColor:'white'
-    marginBottom: 20
+    marginBottom: 18
   },
   iosHeight: {
     height: 30

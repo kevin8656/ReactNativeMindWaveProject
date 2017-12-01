@@ -31,15 +31,23 @@ class MoniterSetting extends Component {
     render() {
         return <View style={styles.container}>
             <TextInput
-                value={this.props.name}
+                value={this.state.selection.name}
                 style={styles.textInput}
                 editable={this.props.editable}
                 style={[styles.textInput, _platfrom && styles.iosHeight]}
                 underlineColorAndroid='transparent'
-                autoCapitalize="none" />
+                autoCapitalize="none"
+                onChangeText={(name) => {
+                    this.setState({
+                        selection: {
+                            ...this.state.selection,
+                            name: name,
+                        }
+                    })
+                }} />
             <Switch
-                disabled={false}
-                value={(this.props.name == this.props.selection.name) ? true : false}
+                disabled={this.props.disabled}
+                value={(this.state.selection.name == this.props.selection.name) ? true : false}
                 style={styles.switch}
                 onValueChange={(value) => { this.editUserData(this.state.selection); }} />
         </View>
@@ -53,11 +61,11 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         flexDirection: 'row',
-        marginBottom: 20
+        marginBottom: width*0.05
     },
     textInput: {
         width: width * 0.7,
-        height: 40,
+        height: width * 0.1,
         borderColor: 'gray',
         borderWidth: 1,
         fontFamily: 'Euphemia UCAS',
