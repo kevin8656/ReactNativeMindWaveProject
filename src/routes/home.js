@@ -14,7 +14,9 @@ import {
   ListView,
   ScrollView,
   Alert,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Tabs from 'react-native-tabs';
@@ -132,12 +134,13 @@ class Home extends Component {
   }
   handleDisconnect = ({ success }) => {
     console.log(`DisConnect ${success ? 'Success' : 'Faild'}`);
-    if (success && !this.state.mindwaveConnected) {
+    if (success) {
       this.setState({
         Connected: false,
+        startOrStop: false
       });
+      this.alertMindWaveResult();
       console.log('no connecting device');
-      return;
     }
     console.log(`mindwaveConnected=${this.state.mindwaveConnected}`);
     console.log(`willConnect=${this.state.willConnect}`);
@@ -199,7 +202,6 @@ class Home extends Component {
     } else {
       _state.mindwaveConnected = null;
     }
-
     this.setState(_state);
   }
   setMindWaveDeviceModalVisible(visible) {
@@ -232,45 +234,47 @@ class Home extends Component {
       this.setState({
         startOrStop: false,
       })
-      allData.push({ data: data })
-      var user_details = {
-        user_details: {
-          name: this.props.user.name,
-          email: this.props.user.email,
-          phone: this.props.user.phone
-        }
-      }
-
-      Alert.alert(
-        'Result',
-        'The data will be send to you and to the application owner via email',
-        [
-          {
-            text: 'Send', onPress: () => {
-              console.log(allData);
-              allData = [];
-              data = [];
-              allData.push(user_details);
-            },
-          },
-          {
-            text: 'Clear', onPress: () => {
-              allData = [];
-              data = [];
-              allData.push(user_details);
-            }
-          },
-          {
-            text: 'Cancel', onPress: () => {
-              allData = [];
-              data = [];
-              allData.push(user_details);
-            }
-          },
-        ],
-        { cancelable: false }
-      )
+      this.alertMindWaveResult();
     }
+  }
+  alertMindWaveResult() {
+    allData.push({ data: data })
+    var user_details = {
+      user_details: {
+        name: this.props.user.name,
+        email: this.props.user.email,
+        phone: this.props.user.phone
+      }
+    }
+    Alert.alert(
+      'Result',
+      'The data will be send to you and to the application owner via email',
+      [
+        {
+          text: 'Send', onPress: () => {
+            console.log(allData);
+            allData = [];
+            data = [];
+            allData.push(user_details);
+          },
+        },
+        {
+          text: 'Clear', onPress: () => {
+            allData = [];
+            data = [];
+            allData.push(user_details);
+          }
+        },
+        {
+          text: 'Cancel', onPress: () => {
+            allData = [];
+            data = [];
+            allData.push(user_details);
+          }
+        },
+      ],
+      { cancelable: false }
+    )
   }
   componentWillUnmount() {
     mwm.removeAllListeners();
@@ -434,7 +438,6 @@ class Home extends Component {
                 <Text>{this.props.mindwavedevice ? this.props.mindwavedevice.id : null}</Text>
                 <ScrollView style={styles.deviceList} >
                   {
-
                     this.state.devices.map((device, index) => {
                       const handlePress = () => this.state.mindwaveConnected ? this.handlePressDisconnectDevice() : this.handlePressConnectDevice(device);
                       const message = `Device : ${device.name || device.id}`
@@ -457,14 +460,22 @@ class Home extends Component {
               {
                 this.state.startOrStop ?
                   <View style={styles.imageView}>
-                    <Image source={require('../images/good.png')} style={styles.imageQuality} />
+                    {
+                      this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? <Image source={require('../images/bad.png')} style={styles.imageQuality} /> :
+                        this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? <Image source={require('../images/unstable.png')} style={styles.imageQuality} /> :
+                          this.props.mindwave.poorSignal <= 50 ? <Image source={require('../images/good.png')} style={styles.imageQuality} /> : null
+                    }
                   </View>
                   :
                   <View style={styles.imageView}>
                     <TouchableOpacity onPress={() => {
                       this.setMindWaveDeviceModalVisible(true);
                     }}>
-                      <Image source={require('../images/good.png')} style={styles.imageQuality} />
+                      {
+                        this.props.mindwave.poorSignal > 150 && this.props.mindwave.poorSignal <= 200 || this.props.mindwave.poorSignal == null ? <Image source={require('../images/bad.png')} style={styles.imageQuality} /> :
+                          this.props.mindwave.poorSignal > 50 && this.props.mindwave.poorSignal <= 150 ? <Image source={require('../images/unstable.png')} style={styles.imageQuality} /> :
+                            this.props.mindwave.poorSignal <= 50 ? <Image source={require('../images/good.png')} style={styles.imageQuality} /> : null
+                      }
                     </TouchableOpacity>
                   </View>
               }
@@ -505,7 +516,7 @@ class Home extends Component {
                 !this.state.startOrStop ?
                   null : <TouchableOpacity onPress={() => { this.changeButtonState(false); }}>
                     <View style={styles.stopButton}>
-                      <Image source={require('../images/stop.png')} style={stＦyles.startImage} />
+                      <Image source={require('../images/stop.png')} style={styles.startImage} />
                     </View>
                   </TouchableOpacity>
                 : null
@@ -515,14 +526,16 @@ class Home extends Component {
       );
     }
     return (
-      <View style={styles.container}>
-        <Tabs selected={this.state.page} style={{ backgroundColor: 'white' }}
-          selectedStyle={{ color: 'red' }} onSelect={el => this.setState({ page: el.props.name })}>
-          <Text name="monitor" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Monitor</Text>
-          <Text name="settings" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Settings</Text>
-        </Tabs>
-        {pageElement}
-      </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Tabs selected={this.state.page} style={{ backgroundColor: 'white' }}
+            selectedStyle={{ color: 'red' }} onSelect={el => this.setState({ page: el.props.name })}>
+            <Text name="monitor" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Monitor</Text>
+            <Text name="settings" selectedIconStyle={{ borderTopWidth: 2, borderTopColor: 'red', backgroundColor: 'white' }}>Settings</Text>
+          </Tabs>
+          {pageElement}
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
   editUserData = (userData) => {
@@ -547,6 +560,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 30,
     marginBottom: 35,
+    width: width,
+    height: width * 0.15,
+    justifyContent: 'center',
   },
   imageCheck: {
     width: width * 0.05,

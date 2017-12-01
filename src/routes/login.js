@@ -9,7 +9,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Platform,
-  Keyboard
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 var { height, width } = Dimensions.get('window');
@@ -32,7 +33,9 @@ class Login extends Component {
     const {
       account, name, token
     } = this.props.user;
-    return <View style={styles.container}>
+    return( 
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <View style={styles.container}>
       <View>
         <Text style={styles.title}>Welcome</Text>
       </View>
@@ -86,6 +89,8 @@ class Login extends Component {
         </View>
       </TouchableOpacity>
     </View>
+</TouchableWithoutFeedback>
+          )
   }
   createUserData = (userData) => {
     this.props.dispatch({ type: 'user/POST_data', userData });

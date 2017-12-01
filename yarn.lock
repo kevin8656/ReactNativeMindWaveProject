@@ -3890,6 +3890,10 @@ react-native-drawer-layout@1.3.2:
   dependencies:
     react-native-dismiss-keyboard "1.0.0"
 
+react-native-material-bottom-navigation@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/react-native-material-bottom-navigation/-/react-native-material-bottom-navigation-0.6.1.tgz#d0e4bef76c3306dd01222a42b42092e2e522ad2e"
+
 react-native-mindwave-mobile@^0.3.3:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/react-native-mindwave-mobile/-/react-native-mindwave-mobile-0.3.3.tgz#d07aca49e926fbca1d86cfd4fb0e80c2a2047b6b"
