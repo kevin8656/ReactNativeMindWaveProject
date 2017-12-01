@@ -19,16 +19,14 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import Tabs from 'react-native-tabs';
-import MindWaveMobile from 'react-native-mindwave-mobile';
-import _ from 'lodash';
 import MoniterSetting from '../components/moniterSetting';
+import MindWaveMobile from 'react-native-mindwave-mobile';
+import Tabs from 'react-native-tabs';
+import _ from 'lodash';
 let _platfrom = Platform.OS === 'ios' ? true : false;
 const mwm = new MindWaveMobile();
 const isMock = false;
-const poorSignalTimerTimeMax = 5
 var { height, width } = Dimensions.get('window');
-var Settlecounter = 0;
 var allData = [];
 var data = [];
 class Home extends Component {
@@ -39,31 +37,12 @@ class Home extends Component {
       page: 'settings',
       mindwaveDeviceModalVisible: false,
       //Check Device Connection
-      defaultPage: true,
-      PrestartTest: false,
-      deviceFound: false,
       mindwaveConnected: false,
       devices: [],
       mindwaveTimer: 0,
       //Check PoorSignal = 0
-      poorSignalChecked: false,
-      poorSignalTimer: poorSignalTimerTimeMax,
       Connected: false,
-      isScanning: false,
       willConnect: null,
-      //MindWave Data
-      delta: this.props.mindwave.delta ? this.props.mindwave.delta : null,
-      highAlpha: this.props.mindwave.highAlpha ? this.props.mindwave.highAlpha : null,
-      lowAlpha: this.props.mindwave.lowAlpha ? this.props.mindwave.lowAlpha : null,
-      theta: this.props.mindwave.theta ? this.props.mindwave.theta : null,
-      lowBeta: this.props.mindwave.lowBeta ? this.props.mindwave.lowBeta : null,
-      midGamma: this.props.mindwave.midGamma ? this.props.mindwave.midGamma : null,
-      highBeta: this.props.mindwave.highBeta ? this.props.mindwave.highBeta : null,
-      lowGamma: this.props.mindwave.lowGamma ? this.props.mindwave.lowGamma : null,
-      poorSignal: this.props.mindwave.poorSignal ? this.props.mindwave.poorSignal : 200,
-      meditation: this.props.mindwave.meditation ? this.props.mindwave.meditation : 0,
-      attention: this.props.mindwave.attention ? this.props.mindwave.attention : 0,
-      timerCounter: 0,
       //Start & Stop Button
       startOrStop: false,
     }
@@ -73,10 +52,12 @@ class Home extends Component {
     mwm.scan();
     console.log('scan');
   }
+
   handleFoundDevice = (device) => {
     console.log(`device=${device.id}`);
     this.pushDevice(device);
   }
+
   pushDevice = (device) => {
     if (!device.id) {
       console.log('device id is undefined or null');
@@ -87,11 +68,11 @@ class Home extends Component {
       return;
     }
     this.state.devices.push(device);
-
     this.setState({
       devices: this.state.devices,
     });
   }
+
   handlePressConnectDevice = (device) => {
     if (!device.id) {
       console.error('can not connect no id device');
@@ -110,6 +91,7 @@ class Home extends Component {
       this.mwm.connect(device.id);
     }
   }
+
   handlePressDisconnectDevice = () => {
     if (!this.state.mindwaveConnected) {
       console.log('no connecting device');
@@ -121,6 +103,7 @@ class Home extends Component {
       this.mwm.disconnect();
     }
   }
+
   handleConnect = ({ success }) => {
     console.log(`Connect ${success ? 'Success' : 'Faild'}`);
     if (success && this.state.willConnect) {
@@ -132,6 +115,7 @@ class Home extends Component {
       console.log('will connect device is null');
     }
   }
+
   handleDisconnect = ({ success }) => {
     console.log(`DisConnect ${success ? 'Success' : 'Faild'}`);
     if (success) {
@@ -146,6 +130,7 @@ class Home extends Component {
     console.log(`willConnect=${this.state.willConnect}`);
     this.changeConnectedState(this.state.mindwaveConnected, false)
   }
+
   handleEEGPowerLowBeta = (data) => {
     //console.log('onEEGPowerLowBeta', data);
     this.props.dispatch({
@@ -179,6 +164,7 @@ class Home extends Component {
       });
     }
   }
+
   // handleEEGBlink = (data) => {
   //   console.log('onEEGBlink', data);
   // }
@@ -186,6 +172,7 @@ class Home extends Component {
   // handleMWMBaudRate = (data) => {
   //   console.log('onMWMBaudRate', data);
   // }
+
   changeConnectedState = (id, mindwaveConnected) => {
     if (!id) {
       console.log('device id is undefined or null');
@@ -204,6 +191,7 @@ class Home extends Component {
     }
     this.setState(_state);
   }
+
   setMindWaveDeviceModalVisible(visible) {
     this.setState({
       mindwaveDeviceModalVisible: visible,
@@ -223,8 +211,8 @@ class Home extends Component {
     } else {
       clearTimeout(this.timer)
     }
-
   }
+
   changeButtonState(changeStartAndStop) {
     if (changeStartAndStop) {
       this.setState({
@@ -237,6 +225,7 @@ class Home extends Component {
       this.alertMindWaveResult();
     }
   }
+
   alertMindWaveResult() {
     allData.push({ data: data })
     var user_details = {
@@ -276,9 +265,11 @@ class Home extends Component {
       { cancelable: false }
     )
   }
+
   componentWillUnmount() {
     mwm.removeAllListeners();
   }
+
   componentDidMount() {
     this.mwm = new MindWaveMobile();
     mwm.onConnect(this.handleConnect);
@@ -292,6 +283,7 @@ class Home extends Component {
     //   mwm.onMWMBaudRate(this.handleMWMBaudRate);
     // }
   }
+
   componentWillReceiveProps(nextProps) {
     const { user: previous_user } = this.props;
     const { user } = nextProps;
@@ -548,7 +540,6 @@ class Home extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
   },
@@ -598,7 +589,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 5,
     fontFamily: 'Euphemia UCAS',
-    // backgroundColor:'white'
     marginBottom: 18
   },
   iosHeight: {

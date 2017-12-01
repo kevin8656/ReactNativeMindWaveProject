@@ -33,64 +33,64 @@ class Login extends Component {
     const {
       account, name, token
     } = this.props.user;
-    return( 
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.container}>
-      <View>
-        <Text style={styles.title}>Welcome</Text>
-      </View>
-      <TextInput
-        placeholder="Your Name"
-        value={this.state.name}
-        style={styles.textInput}
-        autoCapitalize="none"
-        style={[styles.textInput, _platfrom && styles.iosHeight]}
-        underlineColorAndroid='transparent'
-        onChangeText={
-          (name) =>
-            this.setState({
-              userData: {
-                ...this.state.userData,
-                name
-              }
-            })} />
-      <TextInput
-        placeholder="Your Email"
-        value={this.state.email}
-        style={styles.textInput}
-        autoCapitalize="none"
-        style={[styles.textInput, _platfrom && styles.iosHeight]}
-        underlineColorAndroid='transparent'
-        onChangeText={
-          (email) =>
-            this.setState({
-              userData: {
-                ...this.state.userData,
-                email
-              }
-            })} />
-      <TextInput
-        placeholder="Phone number"
-        value={this.state.phone}
-        keyboardType='number-pad'
-        style={[styles.textInput, _platfrom && styles.iosHeight]}
-        underlineColorAndroid='transparent'
-        onChangeText={
-          (phone) =>
-            this.setState({
-              userData: {
-                ...this.state.userData,
-                phone
-              }
-            })} />
-      <TouchableOpacity onPress={() => { this.createUserData(this.state.userData) }}>
-        <View style={styles.button}>
-          <Text>Let's Play</Text>
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View>
+            <Text style={styles.title}>Welcome</Text>
+          </View>
+          <TextInput
+            placeholder="Your Name"
+            value={this.state.name}
+            style={styles.textInput}
+            autoCapitalize="none"
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
+            onChangeText={
+              (name) =>
+                this.setState({
+                  userData: {
+                    ...this.state.userData,
+                    name
+                  }
+                })} />
+          <TextInput
+            placeholder="Your Email"
+            value={this.state.email}
+            style={styles.textInput}
+            autoCapitalize="none"
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
+            onChangeText={
+              (email) =>
+                this.setState({
+                  userData: {
+                    ...this.state.userData,
+                    email
+                  }
+                })} />
+          <TextInput
+            placeholder="Phone number"
+            value={this.state.phone}
+            keyboardType='number-pad'
+            style={[styles.textInput, _platfrom && styles.iosHeight]}
+            underlineColorAndroid='transparent'
+            onChangeText={
+              (phone) =>
+                this.setState({
+                  userData: {
+                    ...this.state.userData,
+                    phone
+                  }
+                })} />
+          <TouchableOpacity onPress={() => { this.createUserData(this.state.userData) }}>
+            <View style={styles.button}>
+              <Text>Let's Play</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-    </View>
-</TouchableWithoutFeedback>
-          )
+      </TouchableWithoutFeedback>
+    )
   }
   createUserData = (userData) => {
     this.props.dispatch({ type: 'user/POST_data', userData });
