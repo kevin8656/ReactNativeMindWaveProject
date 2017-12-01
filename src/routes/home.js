@@ -357,58 +357,60 @@ class Home extends Component {
     var pageElement;
     if (this.state.page == 'settings') {
       pageElement = (
-        <View style={{ alignItems: 'center' }}>
-          <View>
-            <Text style={styles.title}>Settings</Text>
-          </View>
-          <TextInput
-            placeholder="Your Name"
-            value={name}
-            autoCapitalize="none"
-            style={[styles.textInput, _platfrom && styles.iosHeight]}
-            underlineColorAndroid='transparent'
-            onChangeText={
-              (name) =>
-                this.setState({
-                  userData: {
-                    ...this.state.userData,
-                    name
-                  }
-                })} />
-          <TextInput
-            placeholder="Your Email"
-            value={email}
-            autoCapitalize="none"
-            style={[styles.textInput, _platfrom && styles.iosHeight]}
-            underlineColorAndroid='transparent'
-            onChangeText={
-              (email) =>
-                this.setState({
-                  userData: {
-                    ...this.state.userData,
-                    email
-                  }
-                })} />
-          <TextInput
-            placeholder="Phone number"
-            value={phone}
-            style={[styles.textInput, _platfrom && styles.iosHeight]}
-            underlineColorAndroid='transparent'
-            keyboardType='number-pad'
-            onChangeText={
-              (phone) =>
-                this.setState({
-                  userData: {
-                    ...this.state.userData,
-                    phone
-                  }
-                })} />
-          <TouchableOpacity onPress={() => { this.editUserData(this.state.userData) }}>
-            <View style={styles.button}>
-              <Text>Save</Text>
+        <KeyboardAvoidingView behavior='position'>
+          <View style={{ alignItems: 'center' }}>
+            <View>
+              <Text style={styles.title}>Settings</Text>
             </View>
-          </TouchableOpacity>
-        </View>
+            <TextInput
+              placeholder="Your Name"
+              value={name}
+              autoCapitalize="none"
+              style={[styles.textInput, _platfrom && styles.iosHeight]}
+              underlineColorAndroid='transparent'
+              onChangeText={
+                (name) =>
+                  this.setState({
+                    userData: {
+                      ...this.state.userData,
+                      name
+                    }
+                  })} />
+            <TextInput
+              placeholder="Your Email"
+              value={email}
+              autoCapitalize="none"
+              style={[styles.textInput, _platfrom && styles.iosHeight]}
+              underlineColorAndroid='transparent'
+              onChangeText={
+                (email) =>
+                  this.setState({
+                    userData: {
+                      ...this.state.userData,
+                      email
+                    }
+                  })} />
+            <TextInput
+              placeholder="Phone number"
+              value={phone}
+              style={[styles.textInput, _platfrom && styles.iosHeight]}
+              underlineColorAndroid='transparent'
+              keyboardType='number-pad'
+              onChangeText={
+                (phone) =>
+                  this.setState({
+                    userData: {
+                      ...this.state.userData,
+                      phone
+                    }
+                  })} />
+            <TouchableOpacity onPress={() => { this.editUserData(this.state.userData) }}>
+              <View style={styles.button}>
+                <Text>Save</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       );
     } else {
       const { account, name, token } = this.props.user;
