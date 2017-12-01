@@ -1,5 +1,3 @@
-//import * as user from '../services/user';
-
 export default {
     namespace: 'mindwave',
     state: {
