@@ -44,7 +44,7 @@ class Devices extends Component {
 
     return (
       <View style={styles.container}>
-        <ScrollView>
+        <ScrollView contentContainerStyle={styles.deviceList} >
           {
             _.map(devices, (device, index) => (
               <TouchableOpacity key={index} style={styles.deviceItemTouchable} onPress={() => this.handlePress(device.id, (connected && (connectDevice === device.id)))} >

@@ -4,11 +4,9 @@ const { height, width } = Dimensions.get('window');
 export default StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   deviceList: {
-    // borderTopWidth: 1,
-    // borderColor: '#d6d6d4',
-    // width: width,
     marginTop: 10
   },
   deviceItemTouchable: {
@@ -17,7 +15,7 @@ export default StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderColor: '#d6d6d4',
-    width: width
+    flex: 1,
   },
   deviceItemContainer: {
     flex: 1,
