@@ -1,82 +1,67 @@
+import styles from './moniterSetting.styles';
+
+import _ from 'lodash';
 import { connect } from 'dva-no-router';
 import React, { Component } from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    Dimensions,
-    Switch,
-    Platform
+  Text,
+  View,
+  TextInput,
+  Switch,
+  Platform
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-var { height, width } = Dimensions.get('window');
-let _platfrom = Platform.OS === 'ios' ? true : false;
+
 class MoniterSetting extends Component {
-    constructor() {
-        super();
-        this.state = {
-            selection: {}
-        }
+  state = {
+    selection: {
+      name: this.props.name,
+      id: this.props.id
     }
-    componentWillMount() {
-        this.setState({
-            selection: {
-                ...this.state.selection,
-                name: this.props.name,
-                id: this.props.id
-            }
-        })
-    }
-    render() {
-        return <View style={styles.container}>
-            <TextInput
-                value={this.state.selection.name}
-                style={styles.textInput}
-                editable={this.props.editable}
-                style={[styles.textInput, _platfrom && styles.iosHeight]}
-                underlineColorAndroid='transparent'
-                autoCapitalize="none"
-                onChangeText={(name) => {
-                    this.setState({
-                        selection: {
-                            ...this.state.selection,
-                            name: name,
-                        }
-                    })
-                }} />
-            <Switch
-                disabled={this.props.disabled}
-                value={(this.state.selection.name == this.props.selection.name) ? true : false}
-                style={styles.switch}
-                onValueChange={(value) => { this.editUserData(this.state.selection); }} />
-        </View>
-    }
-    editUserData = (selection) => {
-        this.props.dispatch({ type: 'selection/save_selection', selection });
-    }
+  }
+
+  handleChangeText = (text) => {
+    this.setState({
+      selection: {
+        ...this.state.selection,
+        name: text,
+      }
+    })
+  }
+
+  handleChangeValue = (value) => {
+    this.props.dispatch({
+      type: 'scene/SET_scene',
+      selection: this.state.selection,
+    })
+  }
+
+  render() {
+    const { selection } = this.state
+
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={[styles.textInput, (Platform.OS === 'ios') && styles.iosHeight]}
+          value={selection.name}
+          editable={this.props.editable}
+          underlineColorAndroid='transparent'
+          autoCapitalize="none"
+          onChangeText={this.handleChangeText} />
+        <Switch
+          style={styles.switch}
+          disabled={this.props.disabled}
+          value={_.isEqual(selection.id, this.props.scene.id) ? true : false}
+          onValueChange={this.handleChangeValue} />
+      </View>
+    )
+  }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        marginBottom: width*0.05
-    },
-    textInput: {
-        width: width * 0.7,
-        height: width * 0.1,
-        borderColor: 'gray',
-        borderWidth: 1,
-        fontFamily: 'Euphemia UCAS',
-        color: 'gray'
-    },
-    iosHeight: {
-        height: 30
-    },
-    switch: {
-        marginLeft: 10,
-    }
-});
+function mapStateToProps(state) {
+  return {
+    scene: state.scene,
+  }
+}
 
-export default connect(state => state)(MoniterSetting);
+export default connect(mapStateToProps)(MoniterSetting);

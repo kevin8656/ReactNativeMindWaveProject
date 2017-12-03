@@ -1,4 +1,4 @@
-import * as user from '../services/user';
+import { Actions } from 'react-native-router-flux'
 
 export default {
   namespace: 'user',
@@ -8,25 +8,28 @@ export default {
     phone: null,
   },
   reducers: {
-    postData(state, action) {
+    SET_data (state, { payload }) {
       return {
         ...state,
-        ...action.userData,
-      };
+        ...payload,
+      }
     },
-    logout(state, action) {
+    RESET_data (state) {
       return {
-        ...state,
         name: null,
         email: null,
         phone: null,
-      };
+      }
     },
   },
   effects: {
-    *POST_data(action, { call, put }) {
-      const { data } = yield call(user.POST_login);
-      yield put({ type: 'postData', userData: action.userData });
-    },
+    * POST_login ({ payload }, { call, put }) {
+      yield put({
+        type: 'SET_data',
+        payload,
+      })
+
+      Actions.reset('home')
+    }
   },
 }
