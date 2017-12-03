@@ -13,6 +13,7 @@ import {
 import { Actions } from 'react-native-router-flux';
 import ImageQuality from '../components/imageQuality';
 import MoniterSetting from '../components/moniterSetting';
+import SelectorScene from '../components/selectorScene';
 
 const imgBtnStart = require('../images/start.png')
 const imgBtnStop = require('../images/stop.png')
@@ -185,10 +186,21 @@ class Monitor extends Component {
     )
   }
 
+  handleSceneChange = (identity, name, checked) => {
+    this.props.dispatch({
+      type: 'scene/SET_scene',
+      payload: {
+        name: checked ? name : null,
+        id: checked ? identity : null,
+      }
+    })
+  }
+
   render() {
-    const poorSignal = _.get(this.props, 'mindwave.current.poorSignal', -1)
+    const poorSignal = this.props.mindwave.current.poorSignal
     const connected = this.props.mindwave.connected || false
     const recording = this.props.mindwave.recording || false
+    const sceneId = this.props.scene.id
 
     return (
       <View style={styles.container}>
@@ -212,20 +224,56 @@ class Monitor extends Component {
             </Text>
           </View>
         </View>
-        <MoniterSetting
-          name="SEX" id='1' editable={false} disabled={recording} />
-        <MoniterSetting
-          name="FOOD" id='2' editable={false} disabled={recording} />
-        <MoniterSetting
-          name="SHOPPING" id='3' editable={false} disabled={recording} />
-        <MoniterSetting
-          name="EVENT 4" id='4' editable={!recording} disabled={recording} />
-        <MoniterSetting
-          name="EVENT 5" id='5' editable={!recording} disabled={recording} />
-        <MoniterSetting
-          name="EVENT 6" id='6' editable={!recording} disabled={recording} />
+        <SelectorScene 
+          identity="1"
+          name="SEX"
+          editable={false}
+          disabled={recording}
+          checked={sceneId === '1'}
+          onChangeCheck={this.handleSceneChange}
+        />
+        <SelectorScene 
+          identity="2"
+          name="FOOD"
+          editable={false}
+          disabled={recording}
+          checked={sceneId === '2'}
+          onChangeCheck={this.handleSceneChange}
+        />
+        <SelectorScene 
+          identity="3"
+          name="SHOPPING"
+          editable={false}
+          disabled={recording}
+          checked={sceneId === '3'}
+          onChangeCheck={this.handleSceneChange}
+        />
+        <SelectorScene 
+          identity="4"
+          name="EVENT 4"
+          editable={!recording}
+          disabled={recording}
+          checked={sceneId === '4'}
+          onChangeCheck={this.handleSceneChange}
+        />
+        <SelectorScene 
+          identity="5"
+          name="EVENT 5"
+          editable={!recording}
+          disabled={recording}
+          checked={sceneId === '5'}
+          onChangeCheck={this.handleSceneChange}
+        />
+        <SelectorScene 
+          identity="6"
+          name="EVENT 6"
+          editable={!recording}
+          disabled={recording}
+          checked={sceneId === '6'}
+          onChangeCheck={this.handleSceneChange}
+        />
         {
-          connected
+          connected && sceneId
             ? !recording
               ? <TouchableOpacity onPress={this.handleStartButtonClick}>
                 <View style={styles.startButton}>
@@ -247,6 +295,7 @@ class Monitor extends Component {
 function mapStateToProps(state) {
   return {
     mindwave: state.mindwave,
+    scene: state.scene,
   }
 }
 

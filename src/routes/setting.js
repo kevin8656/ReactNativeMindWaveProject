@@ -5,81 +5,39 @@ import { connect } from 'dva-no-router';
 import React, { Component } from 'react';
 import {
   View,
-  Platform,
-  TextInput,
   Text,
-  TouchableOpacity,
 } from 'react-native';
+import {
+  Button,
+} from 'react-native-elements';
+import ProfileForm from '../components/profileForm';
 
 class Setting extends Component {
-  state = {
-    userData: this.props.userData,
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const {
-      userData,
-    } = nextProps
-
-    if (this.props.userData !== userData) {
-      this.setState({
-        userData,
-      })
-    }
-  }
-
-  handleChangeField = (field, value) => {
-    this.setState({
-      userData: {
-        ...this.state.userData,
-        [field]: value,
-      },
-    })
-  }
 
   handlePressSubmit = () => {
-    this.props.dispatch({
-      type: 'user/SET_data',
-      payload: this.state.userData,
+    this.profileForm.validateFields((error, values) => {
+      this.props.dispatch({
+        type: 'user/SET_data',
+        payload: values,
+      })
     })
   }
 
   render() {
-    const {
-      name, email, phone,
-    } = this.state.userData
-
     return (
       <View style={styles.container} >
         <View>
           <Text style={styles.title}>Settings</Text>
         </View>
-        <TextInput
-          placeholder="Your Name"
-          value={name}
-          autoCapitalize="none"
-          style={[styles.textInput, (Platform === 'ios') && styles.iosHeight]}
-          underlineColorAndroid='transparent'
-          onChangeText={text => this.handleChangeField('name', text)} />
-        <TextInput
-          placeholder="Your Email"
-          value={email}
-          autoCapitalize="none"
-          style={[styles.textInput, (Platform.OS === 'ios') && styles.iosHeight]}
-          underlineColorAndroid='transparent'
-          onChangeText={text => this.handleChangeField('email', text)} />
-        <TextInput
-          placeholder="Phone number"
-          value={phone}
-          style={[styles.textInput, (Platform.OS === 'ios') && styles.iosHeight]}
-          underlineColorAndroid='transparent'
-          keyboardType='number-pad'
-          onChangeText={text => this.handleChangeField('phone', text)} />
-        <TouchableOpacity onPress={this.handlePressSubmit}>
-          <View style={styles.button}>
-            <Text>Save</Text>
-          </View>
-        </TouchableOpacity>
+        <ProfileForm ref={(ref) => { this.profileForm = ref }}
+          initData={this.props.userData}
+        />
+        <Button title="Save"
+          buttonStyle={styles.btn}
+          containerViewStyle={styles.btnContainer}
+          textStyle={styles.btnText}
+          onPress={this.handlePressSubmit}
+        />
       </View>
     );
   }

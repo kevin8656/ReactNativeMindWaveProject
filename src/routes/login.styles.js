@@ -4,7 +4,6 @@ const { height, width } = Dimensions.get('window');
 export default StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
   },
@@ -13,28 +12,16 @@ export default StyleSheet.create({
     marginBottom: 35,
     fontSize: 45
   },
-  textInput: {
-    width: width * 0.6,
-    height: width * 0.1,
-    borderColor: 'gray',
-    borderWidth: 1,
-    paddingLeft: 5,
-    fontFamily: 'Euphemia UCAS',
-    // backgroundColor:'white'
-    marginBottom: 18
+  btn: {
+    // borderWidth: 1,
+    // borderColor: 'gray',
+    backgroundColor: '#B3E5FC',
+    // borderRadius: 4,
   },
-  iosHeight: {
-    height: 30
+  btnContainer: {
+    paddingTop: 20,
   },
-  button: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 18,
-    paddingRight: 18,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'gray',
-    backgroundColor: 'white',
-    marginTop: 10,
+  btnText: {
+    color: '#424242',
   },
 });

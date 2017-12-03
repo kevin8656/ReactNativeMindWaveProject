@@ -5,10 +5,11 @@ export default {
     id: '1'
   },
   reducers: {
-    SET_scene(state, { selection }) {
+    SET_scene(state, { payload }) {
       return {
         ...state,
-        ...selection,
+        name: payload.name,
+        id: payload.id,
       }
     },
   },
