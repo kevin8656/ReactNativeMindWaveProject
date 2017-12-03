@@ -157,16 +157,6 @@ export default {
       },
       { type: 'throttle', ms: 300 }
     ],
-    // * handleFoundDevice({ payload }, { put, select }) {
-    //   const scanning = yield select(state => state.mindwave.scanning)
-    //   console.log('onFoundDevice');
-    //   console.log('device:', payload);
-    //   if (!scanning) return;
-    //   yield put({
-    //     type: 'PUSH_device',
-    //     payload,
-    //   })
-    // },
     handleEEGData: [
       function* ({ payload }, { put, select }) {
         const {
@@ -209,46 +199,6 @@ export default {
       },
       { type: 'throttle', ms: 200 },
     ],
-    // * handleEEGData({ payload }, { put, select }) {
-    //   const {
-    //     event, data,
-    //   } = payload
-
-    //   if (event === 'onEEGPowerDelta') {
-    //     tempEEGData = {
-    //       ...tempEEGData,
-    //       delta: data.delta,
-    //       highAlpha: data.highAlpha,
-    //       lowAlpha: data.lowAlpha,
-    //       theta: data.theta,
-    //     }
-    //   } else if (event === 'onEEGPowerLowBeta') {
-    //     tempEEGData = {
-    //       ...tempEEGData,
-    //       lowBeta: data.lowBeta,
-    //       midGamma: data.midGamma,
-    //       highBeta: data.highBeta,
-    //       lowGamma: data.lowGamma,
-    //     }
-    //   } else if (event === 'onESense') {
-    //     tempEEGData = {
-    //       ...tempEEGData,
-    //       poorSignal: data.poorSignal,
-    //       meditation: data.meditation,
-    //       attention: data.attention,
-    //     }
-    //   }
-    
-    //   yield put({
-    //     type: 'SET_current',
-    //     payload: tempEEGData,
-    //   })
-
-    //   yield put({
-    //     type: 'saveRecord',
-    //   })
-    // },
-
     saveRecord: [
       function* (action, { put, select }) {
         const recording = yield select(state => _.get(state, 'mindwave.recording', false))
