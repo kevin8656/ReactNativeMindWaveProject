@@ -3,7 +3,7 @@ import dva from 'dva-no-router';
 
 import router from './router';
 import user from './models/user';
-import selection from './models/selection';
+import scene from './models/scene';
 import mindwave from './models/mindwave';
 
 
@@ -14,7 +14,7 @@ class App extends Component {
   };
   componentDidMount() {
     this.app.model(user);
-    this.app.model(selection);
+    this.app.model(scene);
     this.app.model(mindwave);
     this.app.router(router);
 

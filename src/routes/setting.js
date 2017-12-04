@@ -1,10 +1,11 @@
-import styles from './login.styles';
+import styles from './setting.styles';
 
+import _ from 'lodash';
 import { connect } from 'dva-no-router';
 import React, { Component } from 'react';
 import {
-  Text,
   View,
+  Text,
 } from 'react-native';
 import {
   Button,
@@ -12,11 +13,12 @@ import {
 import ProfileForm from '../components/profileForm';
 import AdvanceScrollView from '../components/advanceScrollView';
 
-class Login extends Component {
+class Setting extends Component {
+
   handlePressSubmit = () => {
-    this.form.validateFields((error, values) => {
+    this.profileForm.validateFields((error, values) => {
       this.props.dispatch({
-        type: 'user/POST_login',
+        type: 'user/SET_data',
         payload: values,
       })
     })
@@ -24,13 +26,15 @@ class Login extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} >
         <View>
-          <Text style={styles.title}>Welcome</Text>
+          <Text style={styles.title}>Settings</Text>
         </View>
         <AdvanceScrollView containerViewStyle={{ flex: 1, alignItems: 'center' }} >
-          <ProfileForm ref={(ref) => { this.form = ref }} />
-          <Button title="Let's Play"
+          <ProfileForm ref={(ref) => { this.profileForm = ref }}
+            initData={this.props.userData}
+          />
+          <Button title="Save"
             buttonStyle={styles.btn}
             containerViewStyle={styles.btnContainer}
             textStyle={styles.btnText}
@@ -38,8 +42,14 @@ class Login extends Component {
           />
         </AdvanceScrollView>
       </View>
-    )
+    );
   }
 }
 
-export default connect()(Login);
+function mapStateToProps(state) {
+  return {
+    userData: state.user,
+  }
+}
+
+export default connect(mapStateToProps)(Setting);
