@@ -2,6 +2,7 @@ import { connect } from 'dva-no-router';
 import React from 'react';
 import {
   Platform,
+  Alert,
 } from 'react-native';
 import {
   Actions,
@@ -14,6 +15,7 @@ import {
   Tabs,
 } from 'react-native-router-flux';
 import MindWaveMobile from 'react-native-mindwave-mobile';
+import RNExitApp from 'react-native-exit-app';
 import Login from './routes/login';
 import Monitor from './routes/monitor';
 import Setting from './routes/setting';
@@ -30,19 +32,37 @@ const DvaRouter = connect()(({ dispatch, ...props }) => {
   };
   return <Router createReducer={reducerCreate} {...props} />
 });
+const handleBackPress = () => {
+  const prevScene = Actions.currentScene;
+
+  Actions.pop();
+
+  if (Actions.currentScene === prevScene) {
+    Alert.alert(
+      'Want Exit？',
+      'Press \"Yes\" exit',
+      [
+        { text: 'Cancel' },
+        { text: 'Yes', onPress: () => RNExitApp.exitApp() },
+      ]
+    );
+  }
+
+  return true;
+}
 
 export default () => {
   const devicesNavButton = Platform.select({
     ios: {
-      rightTitle: 'Close',
-      onRight: () => Actions.pop(),
-    },
-    android: {
       leftTitle: 'Close',
       onLeft: () => Actions.pop(),
+    },
+    android: {
+      rightTitle: 'Close',
+      onRight: () => Actions.pop(),
     }
   })
-  return <DvaRouter>
+  return <DvaRouter backAndroidHandler={handleBackPress} >
     <Overlay>
       <Modal hideNavBar>
         <Scene key="login" component={Login} />
