@@ -132,11 +132,6 @@ export default {
           user_details: user,
           data,
         })
-        console.log('data', {
-          user_details: user,
-          data,
-        });
-        console.log('response', response);
         yield put({
           type: 'RESET_data',
         })
@@ -213,10 +208,7 @@ export default {
         const scene = yield select(state => _.get(state, 'scene'))
         const currentData = yield select(state => _.get(state, 'mindwave.current'))
 
-        if (recording === false) {
-          console.log('recording false');
-          return;
-        }
+        if (recording === false) return;
 
         const data = _.chain(currentData)
           .mapKeys((value, key) => _.snakeCase(key))
