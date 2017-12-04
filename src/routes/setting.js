@@ -11,6 +11,7 @@ import {
   Button,
 } from 'react-native-elements';
 import ProfileForm from '../components/profileForm';
+import AdvanceScrollView from '../components/advanceScrollView';
 
 class Setting extends Component {
 
@@ -29,15 +30,17 @@ class Setting extends Component {
         <View>
           <Text style={styles.title}>Settings</Text>
         </View>
-        <ProfileForm ref={(ref) => { this.profileForm = ref }}
-          initData={this.props.userData}
-        />
-        <Button title="Save"
-          buttonStyle={styles.btn}
-          containerViewStyle={styles.btnContainer}
-          textStyle={styles.btnText}
-          onPress={this.handlePressSubmit}
-        />
+        <AdvanceScrollView>
+          <ProfileForm ref={(ref) => { this.profileForm = ref }}
+            initData={this.props.userData}
+          />
+          <Button title="Save"
+            buttonStyle={styles.btn}
+            containerViewStyle={styles.btnContainer}
+            textStyle={styles.btnText}
+            onPress={this.handlePressSubmit}
+          />
+        </AdvanceScrollView>
       </View>
     );
   }

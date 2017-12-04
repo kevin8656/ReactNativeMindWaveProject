@@ -10,6 +10,7 @@ import {
   Button,
 } from 'react-native-elements';
 import ProfileForm from '../components/profileForm';
+import AdvanceScrollView from '../components/advanceScrollView';
 
 class Login extends Component {
   handlePressSubmit = () => {
@@ -27,13 +28,15 @@ class Login extends Component {
         <View>
           <Text style={styles.title}>Welcome</Text>
         </View>
-        <ProfileForm ref={(ref) => { this.form = ref }} />
-        <Button title="Let's Play"
-          buttonStyle={styles.btn}
-          containerViewStyle={styles.btnContainer}
-          textStyle={styles.btnText}
-          onPress={this.handlePressSubmit}
-        />
+        <AdvanceScrollView>
+          <ProfileForm ref={(ref) => { this.form = ref }} />
+          <Button title="Let's Play"
+            buttonStyle={styles.btn}
+            containerViewStyle={styles.btnContainer}
+            textStyle={styles.btnText}
+            onPress={this.handlePressSubmit}
+          />
+        </AdvanceScrollView>
       </View>
     )
   }

@@ -20,6 +20,7 @@ export default StyleSheet.create({
   },
   btnContainer: {
     paddingTop: 20,
+    alignSelf: 'center',
   },
   btnText: {
     color: '#424242',
