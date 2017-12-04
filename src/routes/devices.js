@@ -32,8 +32,16 @@ class Devices extends Component {
   handlePress = (deviceId, isConnected = false) => {
     if (isConnected) {
       this.props.mwm.disconnect();
+      this.props.dispatch({
+        type: 'mindwave/SET_connectDevice',
+        payload: null,
+      })
     } else {
       this.props.mwm.connect(deviceId)
+      this.props.dispatch({
+        type: 'mindwave/SET_connectDevice',
+        payload: deviceId,
+      })
     }
   }
 
@@ -54,8 +62,10 @@ class Devices extends Component {
                   </View>
                   <View style={styles.deviceItemRight}>
                     {
-                      connected && (connectDevice === device.id)
-                        ? <Image source={imgCheck} style={styles.imageCheck} />
+                      connectDevice === device.id
+                        ? connected
+                          ? <Image source={imgCheck} style={styles.imageCheck} />
+                          : <Text>Connecting...</Text>
                         : null
                     }
                   </View>

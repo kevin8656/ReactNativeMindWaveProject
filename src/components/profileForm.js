@@ -46,24 +46,27 @@ class ProfileForm extends Component {
     return (
       <View style={styles.container} >
         <FormInput
+          containerStyle={styles.inputContainer}
           placeholder="Your Name"
           autoCapitalize="none"
           value={name}
           onChangeText={value => this.handleChangeField('name', value)}
         />
         <FormInput
+          containerStyle={styles.inputContainer}
           placeholder="Your Email"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
-          onChangeText={value => this.handleChangeField('name', value)}
+          onChangeText={value => this.handleChangeField('email', value)}
         />
         <FormInput
+          containerStyle={styles.inputContainer}
           placeholder="Phone number"
           autoCapitalize="none"
           keyboardType="phone-pad"
           value={phone}
-          onChangeText={value => this.handleChangeField('name', value)}
+          onChangeText={value => this.handleChangeField('phone', value)}
         />
       </View>
     );

@@ -28,7 +28,7 @@ class Login extends Component {
         <View>
           <Text style={styles.title}>Welcome</Text>
         </View>
-        <AdvanceScrollView>
+        <AdvanceScrollView containerViewStyle={{ flex: 1, alignItems: 'center' }} >
           <ProfileForm ref={(ref) => { this.form = ref }} />
           <Button title="Let's Play"
             buttonStyle={styles.btn}

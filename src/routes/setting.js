@@ -30,7 +30,7 @@ class Setting extends Component {
         <View>
           <Text style={styles.title}>Settings</Text>
         </View>
-        <AdvanceScrollView>
+        <AdvanceScrollView containerViewStyle={{ flex: 1, alignItems: 'center' }} >
           <ProfileForm ref={(ref) => { this.profileForm = ref }}
             initData={this.props.userData}
           />

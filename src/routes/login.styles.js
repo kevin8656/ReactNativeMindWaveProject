@@ -4,10 +4,10 @@ const { height, width } = Dimensions.get('window');
 export default StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: 'white',
   },
   title: {
+    alignSelf: 'center',
     marginTop: 35,
     marginBottom: 35,
     fontSize: 45

@@ -60,6 +60,7 @@ class SelectorScene extends Component {
           onChangeText={this.handleChangeText}
         />
         <Switch
+          style={styles.switch}
           value={checked}
           disabled={disabled}
           onValueChange={this.handleValueChange}
