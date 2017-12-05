@@ -1,4 +1,4 @@
-package com.reactnativemindwaveproject;
+package com.mindwaveplayground;
 
 import android.app.Application;
 
