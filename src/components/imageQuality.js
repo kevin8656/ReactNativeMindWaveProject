@@ -24,7 +24,7 @@ class ImageQuality extends Component {
       poorSignal
     } = this.props
 
-    return (poorSignal == null || poorSignal == -1) || (poorSignal > 150  && poorSignal <= 200)
+    return (poorSignal === null || poorSignal == -1) || (poorSignal > 150  && poorSignal <= 200)
       ? imgBad
       : poorSignal > 50 && poorSignal <= 150
         ? imgUnstable

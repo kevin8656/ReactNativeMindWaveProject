@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import ImageQuality from '../components/imageQuality';
-import MoniterSetting from '../components/moniterSetting';
 import SelectorScene from '../components/selectorScene';
 import AdvanceScrollView from '../components/advanceScrollView';
 
@@ -191,8 +190,8 @@ class Monitor extends Component {
     this.props.dispatch({
       type: 'scene/SET_scene',
       payload: {
-        name: checked ? name : null,
-        id: checked ? identity : null,
+        name: checked ? name : 0,
+        id: checked ? identity : 0,
       }
     })
   }
@@ -216,23 +215,25 @@ class Monitor extends Component {
           <View style={styles.connectionTitleView}>
             <Text style={styles.connectionTitle}>
               {
-                (poorSignal == null || poorSignal == -1) || (poorSignal > 150 && poorSignal <= 200)
-                  ? 'Bad connection quality'
-                  : poorSignal > 50 && poorSignal <= 150
-                    ? 'Unstable connection quality'
-                    : poorSignal <= 50 && poorSignal >= 0
-                      ? 'Good connection quality'
-                      : null
+                poorSignal === null
+                  ? 'No connection'
+                  : poorSignal < 0 || (poorSignal > 150 && poorSignal <= 200)
+                    ? 'Bad connection quality'
+                    : poorSignal > 50 && poorSignal <= 150
+                      ? 'Unstable connection quality'
+                      : poorSignal <= 50 && poorSignal >= 0
+                        ? 'Good connection quality'
+                        : null
               }
+              {poorSignal}
             </Text>
           </View>
         </View>
         <AdvanceScrollView containerViewStyle={{ flex: 1, alignItems: 'center' }}>
-          <SelectorScene 
+          <SelectorScene
             identity="1"
             name="SEX"
             editable={false}
-            disabled={recording}
             checked={sceneId === '1'}
             onChangeCheck={this.handleSceneChange}
           />
@@ -240,7 +241,6 @@ class Monitor extends Component {
             identity="2"
             name="FOOD"
             editable={false}
-            disabled={recording}
             checked={sceneId === '2'}
             onChangeCheck={this.handleSceneChange}
           />
@@ -248,7 +248,6 @@ class Monitor extends Component {
             identity="3"
             name="SHOPPING"
             editable={false}
-            disabled={recording}
             checked={sceneId === '3'}
             onChangeCheck={this.handleSceneChange}
           />
@@ -256,7 +255,6 @@ class Monitor extends Component {
             identity="4"
             name="EVENT 4"
             editable={!recording}
-            disabled={recording}
             checked={sceneId === '4'}
             onChangeCheck={this.handleSceneChange}
           />
@@ -264,7 +262,6 @@ class Monitor extends Component {
             identity="5"
             name="EVENT 5"
             editable={!recording}
-            disabled={recording}
             checked={sceneId === '5'}
             onChangeCheck={this.handleSceneChange}
           />
@@ -272,12 +269,11 @@ class Monitor extends Component {
             identity="6"
             name="EVENT 6"
             editable={!recording}
-            disabled={recording}
             checked={sceneId === '6'}
             onChangeCheck={this.handleSceneChange}
           />
           {
-            connected && sceneId
+            connected
               ? !recording
                 ? <TouchableOpacity onPress={this.handleStartButtonClick}>
                   <View style={styles.startButton}>
