@@ -1,4 +1,4 @@
-package com.reactnativemindwaveproject;
+package com.mindwaveplayground;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "ReactNativeMindWaveProject";
+        return "MindWavePlayground";
     }
 }
