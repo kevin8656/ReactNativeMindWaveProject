@@ -47,6 +47,7 @@ class ProfileForm extends Component {
       <View style={styles.container} >
         <FormInput
           containerStyle={styles.inputContainer}
+          inputStyle={styles.input}
           placeholder="Your Name"
           autoCapitalize="none"
           value={name}
@@ -54,6 +55,7 @@ class ProfileForm extends Component {
         />
         <FormInput
           containerStyle={styles.inputContainer}
+          inputStyle={styles.input}
           placeholder="Your Email"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -62,6 +64,7 @@ class ProfileForm extends Component {
         />
         <FormInput
           containerStyle={styles.inputContainer}
+          inputStyle={styles.input}
           placeholder="Phone number"
           autoCapitalize="none"
           keyboardType="phone-pad"

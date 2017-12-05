@@ -55,6 +55,7 @@ class SelectorScene extends Component {
       <View style={styles.container} >
         <FormInput
           containerStyle={styles.inputContainer}
+          inputStyle={styles.input}
           editable={editable}
           value={this.state.name}
           onChangeText={this.handleChangeText}
