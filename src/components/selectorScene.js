@@ -19,6 +19,7 @@ class SelectorScene extends Component {
     editable: PropTypes.bool,
     disabled: PropTypes.bool,
     onChangeCheck: PropTypes.func,
+    onChangeText: PropTypes.func,
   }
 
   static defaultProps = {
@@ -26,6 +27,7 @@ class SelectorScene extends Component {
     editable: true,
     disabled: false,
     onChangeCheck: () => null,
+    onChangeText: () => null,
   }
 
   state = {
@@ -36,12 +38,15 @@ class SelectorScene extends Component {
     this.setState({
       name: value,
     })
+    if (this.props.checked) {
+      this.props.onChangeText(value)
+    }
   }
 
   handleValueChange = checked => {
     this.props.onChangeCheck(
       this.props.identity,
-      this.props.name,
+      this.state.name,
       checked,
     )
   }

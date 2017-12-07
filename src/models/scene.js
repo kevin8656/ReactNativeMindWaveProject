@@ -12,6 +12,12 @@ export default {
         id: payload.id,
       }
     },
+    SET_name(state, { payload }) {
+      return {
+        ...state,
+        name: payload,
+      }
+    },
   },
   effects: {},
 }

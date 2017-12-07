@@ -196,6 +196,13 @@ class Monitor extends Component {
     })
   }
 
+  handleSceneChangeText = (value) => {
+    this.props.dispatch({
+      type: 'scene/SET_name',
+      payload: value,
+    })
+  }
+
   render() {
     const poorSignal = this.props.mindwave.current.poorSignal
     const connected = this.props.mindwave.connected || false
@@ -235,6 +242,7 @@ class Monitor extends Component {
             editable={false}
             checked={sceneId === '1'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           <SelectorScene 
             identity="2"
@@ -242,6 +250,7 @@ class Monitor extends Component {
             editable={false}
             checked={sceneId === '2'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           <SelectorScene 
             identity="3"
@@ -249,6 +258,7 @@ class Monitor extends Component {
             editable={false}
             checked={sceneId === '3'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           <SelectorScene 
             identity="4"
@@ -256,6 +266,7 @@ class Monitor extends Component {
             editable={!recording}
             checked={sceneId === '4'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           <SelectorScene 
             identity="5"
@@ -263,6 +274,7 @@ class Monitor extends Component {
             editable={!recording}
             checked={sceneId === '5'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           <SelectorScene 
             identity="6"
@@ -270,6 +282,7 @@ class Monitor extends Component {
             editable={!recording}
             checked={sceneId === '6'}
             onChangeCheck={this.handleSceneChange}
+            onChangeText={this.handleSceneChangeText}
           />
           {
             connected
