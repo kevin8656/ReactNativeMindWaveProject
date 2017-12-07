@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import MindWaveMobile from 'react-native-mindwave-mobile';
 import * as result from '../services/result';
+import moment from 'moment-timezone';
 
 export default {
   namespace: 'mindwave',
@@ -205,16 +206,16 @@ export default {
     saveRecord: [
       function* (action, { put, select }) {
         const recording = yield select(state => _.get(state, 'mindwave.recording', false))
-        const scene = yield select(state => _.get(state, 'scene'))
-        const currentData = yield select(state => _.get(state, 'mindwave.current'))
-
         if (recording === false) return;
 
+        const scene = yield select(state => _.get(state, 'scene'))
+        const currentData = yield select(state => _.get(state, 'mindwave.current'))
         const data = _.chain(currentData)
           .mapKeys((value, key) => _.snakeCase(key))
           .assign({
             event_name: scene.name,
             event_id: scene.id,
+            timestamp: moment().tz('Asia/Jerusalem').format(),
           })
           .value()
 
