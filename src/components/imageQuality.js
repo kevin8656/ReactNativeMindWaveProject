@@ -6,41 +6,37 @@ import {
   View,
   Image,
 } from 'react-native';
-
-const imgBad = require('../images/bad.png')
-const imgUnstable = require('../images/unstable.png')
-const imgGood = require('../images/good.png')
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 class ImageQuality extends Component {
   static propTypes = {
     poorSignal: PropTypes.number,
+    connected: PropTypes.bool,
   }
   static defaultProps = {
-    poorSignal: -1
+    poorSignal: -1,
+    connected: false,
   }
 
-  imageSource = () => {
+  iconName = () => {
     const {
-      poorSignal
+      poorSignal, connected,
     } = this.props
 
+    if (!connected) return 'bluetooth-disabled';
     return (poorSignal === null || poorSignal == -1) || (poorSignal > 150  && poorSignal <= 200)
-      ? imgBad
+      ? 'sentiment-very-dissatisfied'
       : poorSignal > 50 && poorSignal <= 150
-        ? imgUnstable
+        ? 'sentiment-neutral'
         : poorSignal <= 50 && poorSignal >= 0
-          ? imgGood
+          ? 'sentiment-very-satisfied'
           : null;
   }
 
   render() {
-    const {
-      poorSignal,
-    } = this.props;
-
     return (
       <View style={styles.imageView}>
-        <Image source={this.imageSource()} style={styles.imageQuality} />
+        <Icon name={this.iconName()} style={styles.icon} />
       </View>
     );
   }

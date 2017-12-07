@@ -207,9 +207,9 @@ class Monitor extends Component {
         <View style={styles.qualityTitle}>
           {
             recording
-              ? <ImageQuality poorSignal={poorSignal} />
+              ? <ImageQuality poorSignal={poorSignal} connected={connected} />
               : <TouchableOpacity onPress={this.handlePressDeviceModal}>
-                <ImageQuality poorSignal={poorSignal} />
+                <ImageQuality poorSignal={poorSignal} connected={connected} />
               </TouchableOpacity>
           }
           <View style={styles.connectionTitleView}>
@@ -225,7 +225,6 @@ class Monitor extends Component {
                         ? 'Good connection quality'
                         : null
               }
-              {poorSignal}
             </Text>
           </View>
         </View>

@@ -3,11 +3,11 @@ const { height, width } = Dimensions.get('window');
 
 export default StyleSheet.create({
   imageView: {
-    width: width * 0.15,
+    marginLeft: 10,
+    width: width * 0.2,
   },
-  imageQuality: {
-    width: width * 0.15,
-    height: width * 0.15,
-    marginRight: 13
+  icon: {
+    fontSize: width * 0.2,
+    fontWeight: 'normal',
   },
 })
