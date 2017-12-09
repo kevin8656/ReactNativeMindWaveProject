@@ -153,7 +153,7 @@ export default {
         type: 'SET_disconnect'
       })
     },
-    * handleFoundDevice ({ payload }, { put, select }) {
+    * handleFoundDevice({ payload }, { put, select }) {
       const scanning = yield select(state => state.mindwave.scanning)
       if (!scanning) return;
       yield put({
@@ -161,7 +161,7 @@ export default {
         payload,
       })
     },
-    * handleEEGData ({ payload }, { put, select }) {
+    * handleEEGData({ payload }, { put, select }) {
       const {
         event, data,
       } = payload
@@ -224,7 +224,7 @@ export default {
           payload: data,
         })
       },
-      { type: 'throttle', ms: 1000 }
+      { type: 'throttle', ms: 2000 }
     ]
   }
 }

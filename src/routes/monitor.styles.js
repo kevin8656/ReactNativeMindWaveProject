@@ -39,4 +39,11 @@ export default StyleSheet.create({
     width: width * 0.2,
     height: width * 0.2,
   },
+  timeCounterText: {
+    paddingVertical: 15,
+    fontSize: 18,
+  },
+  timeCounterRecorded: {
+    color: 'red',
+  },
 })

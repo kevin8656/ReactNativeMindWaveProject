@@ -1,6 +1,7 @@
 import styles from './monitor.styles';
 
 import _ from 'lodash';
+import moment from 'moment';
 import { connect } from 'dva-no-router';
 import React, { Component } from 'react';
 import {
@@ -19,13 +20,53 @@ const imgBtnStart = require('../images/start.png')
 const imgBtnStop = require('../images/stop.png')
 
 class Monitor extends Component {
+  state = {
+    timeCounter: null,
+    recorded: false,
+  }
+
+  startedAt = null
+
+  timeCounterInterval = null
+
   componentDidMount() {
     this.mindwaveInit()
+
+    this.startedAt = moment.duration(0, 'seconds')
+    this.timeCounterInterval = this.setTimeCounterInterval()
   }
 
   componentWillUnmount() {
     this.mindwaveDestory()
   }
+
+  componentWillUnmount() {
+    if (this.timeCounterInterval) {
+      clearInterval(this.timeCounterInterval)
+      this.timeCounterInterval = null
+      this.startedAt = null
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { mindwave } = nextProps
+    if (
+      _.isArray(this.props.mindwave.data)
+      &&
+      _.isArray(mindwave.data)
+      &&
+      mindwave.data.length > this.props.mindwave.data.length
+    ) {
+      // flash
+      this.setState({ recorded: true }, () => {
+        setTimeout(() => {
+          if (this.state.recorded === false) return
+          this.setState({ recorded: false })
+        }, 200)
+      })
+    }
+  }
+  
 
   mindwaveInit = () => {
     const { events } = this.props.mindwave
@@ -136,7 +177,6 @@ class Monitor extends Component {
       })
     })
   }
-  
 
   handlePressDeviceModal = () => {
     Actions.devices();
@@ -147,6 +187,9 @@ class Monitor extends Component {
       type: 'mindwave/SET_recording',
       payload: true,
     })
+
+    this.startedAt = moment.duration(0, 'seconds')
+    this.timeCounterInterval = this.setTimeCounterInterval()
   }
 
   handleStopButtonClick = () => {
@@ -155,31 +198,23 @@ class Monitor extends Component {
       payload: false,
     })
 
+    if (this.timeCounterInterval) {
+      clearInterval(this.timeCounterInterval)
+      this.timeCounterInterval = null
+    }
+
     Alert.alert(
       'Result',
       'The data will be send to you and to the application owner via email',
       [
         {
-          text: 'Send', onPress: () => {
-            this.props.dispatch({
-              type: 'mindwave/result',
-            })
-          },
+          text: 'Send', onPress: this.handleMessageButtonSend,
         },
         {
-          text: 'Clear', onPress: () => {
-            this.props.dispatch({
-              type: 'mindwave/RESET_data'
-            })
-          }
+          text: 'Clear', onPress: this.handleMessageButtonClear
         },
         {
-          text: 'Cancel', onPress: () => {
-            this.props.dispatch({
-              type: 'mindwave/SET_recording',
-              payload: true,
-            })
-          }
+          text: 'Cancel', onPress: this.handleMessageButtonCancel
         },
       ],
       { cancelable: false }
@@ -203,7 +238,45 @@ class Monitor extends Component {
     })
   }
 
+  handleMessageButtonSend = () => {
+    this.startedAt = null
+    this.props.dispatch({
+      type: 'mindwave/result',
+    })
+    this.setState({
+      timeCounter: null
+    })
+  }
+
+  handleMessageButtonCancel = () => {
+    this.timeCounterInterval = this.setTimeCounterInterval()
+    this.props.dispatch({
+      type: 'mindwave/SET_recording',
+      payload: true,
+    })
+  }
+
+  handleMessageButtonClear = () => {
+    this.startedAt = null
+    this.props.dispatch({
+      type: 'mindwave/RESET_data'
+    })
+    this.setState({
+      timeCounter: null
+    })
+  }
+
+  setTimeCounterInterval = () => setInterval(() => {
+    if (!this.startedAt || !moment.isDuration(this.startedAt)) return
+
+    this.startedAt.add(1, 'seconds')
+    this.setState({
+      timeCounter: `${_.padStart(this.startedAt.hours(), 2, 0)}:${_.padStart(this.startedAt.minutes(), 2, 0)}:${_.padStart(this.startedAt.seconds(), 2, 0)}`
+    })
+  }, 1000)
+
   render() {
+    const timeCounter = this.state.timeCounter
     const poorSignal = this.props.mindwave.current.poorSignal
     const connected = this.props.mindwave.connected || false
     const recording = this.props.mindwave.recording || false
@@ -284,6 +357,14 @@ class Monitor extends Component {
             onChangeCheck={this.handleSceneChange}
             onChangeText={this.handleSceneChangeText}
           />
+          {
+            timeCounter
+              ? <Text style={[
+                styles.timeCounterText,
+                this.state.recorded && styles.timeCounterRecorded
+              ]} >{timeCounter}</Text>
+              : null
+          }
           {
             connected
               ? !recording
