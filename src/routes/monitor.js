@@ -15,42 +15,26 @@ import { Actions } from 'react-native-router-flux';
 import ImageQuality from '../components/imageQuality';
 import SelectorScene from '../components/selectorScene';
 import AdvanceScrollView from '../components/advanceScrollView';
+import TimeCounter from '../components/timeCounter';
 
 const imgBtnStart = require('../images/start.png')
 const imgBtnStop = require('../images/stop.png')
 
 class Monitor extends Component {
-  state = {
-    timeCounter: null,
-    recorded: false,
-  }
-
-  startedAt = null
-
-  timeCounterInterval = null
-
   componentDidMount() {
     this.mindwaveInit()
-
-    this.startedAt = moment.duration(0, 'seconds')
-    this.timeCounterInterval = this.setTimeCounterInterval()
   }
 
   componentWillUnmount() {
     this.mindwaveDestory()
   }
 
-  componentWillUnmount() {
-    if (this.timeCounterInterval) {
-      clearInterval(this.timeCounterInterval)
-      this.timeCounterInterval = null
-      this.startedAt = null
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     const { mindwave } = nextProps
+
     if (
+      mindwave.recording === true
+      &&
       _.isArray(this.props.mindwave.data)
       &&
       _.isArray(mindwave.data)
@@ -58,12 +42,7 @@ class Monitor extends Component {
       mindwave.data.length > this.props.mindwave.data.length
     ) {
       // flash
-      this.setState({ recorded: true }, () => {
-        setTimeout(() => {
-          if (this.state.recorded === false) return
-          this.setState({ recorded: false })
-        }, 200)
-      })
+      this.timeCounter.flash()
     }
   }
   
@@ -187,9 +166,7 @@ class Monitor extends Component {
       type: 'mindwave/SET_recording',
       payload: true,
     })
-
-    this.startedAt = moment.duration(0, 'seconds')
-    this.timeCounterInterval = this.setTimeCounterInterval()
+    this.timeCounter.start()
   }
 
   handleStopButtonClick = () => {
@@ -198,10 +175,7 @@ class Monitor extends Component {
       payload: false,
     })
 
-    if (this.timeCounterInterval) {
-      clearInterval(this.timeCounterInterval)
-      this.timeCounterInterval = null
-    }
+    this.timeCounter.pause()
 
     Alert.alert(
       'Result',
@@ -239,17 +213,14 @@ class Monitor extends Component {
   }
 
   handleMessageButtonSend = () => {
-    this.startedAt = null
+    this.timeCounter.stop()
     this.props.dispatch({
       type: 'mindwave/result',
-    })
-    this.setState({
-      timeCounter: null
     })
   }
 
   handleMessageButtonCancel = () => {
-    this.timeCounterInterval = this.setTimeCounterInterval()
+    this.timeCounter.start()
     this.props.dispatch({
       type: 'mindwave/SET_recording',
       payload: true,
@@ -257,26 +228,13 @@ class Monitor extends Component {
   }
 
   handleMessageButtonClear = () => {
-    this.startedAt = null
+    this.timeCounter.stop()
     this.props.dispatch({
       type: 'mindwave/RESET_data'
     })
-    this.setState({
-      timeCounter: null
-    })
   }
 
-  setTimeCounterInterval = () => setInterval(() => {
-    if (!this.startedAt || !moment.isDuration(this.startedAt)) return
-
-    this.startedAt.add(1, 'seconds')
-    this.setState({
-      timeCounter: `${_.padStart(this.startedAt.hours(), 2, 0)}:${_.padStart(this.startedAt.minutes(), 2, 0)}:${_.padStart(this.startedAt.seconds(), 2, 0)}`
-    })
-  }, 1000)
-
   render() {
-    const timeCounter = this.state.timeCounter
     const poorSignal = this.props.mindwave.current.poorSignal
     const connected = this.props.mindwave.connected || false
     const recording = this.props.mindwave.recording || false
@@ -357,14 +315,7 @@ class Monitor extends Component {
             onChangeCheck={this.handleSceneChange}
             onChangeText={this.handleSceneChangeText}
           />
-          {
-            timeCounter
-              ? <Text style={[
-                styles.timeCounterText,
-                this.state.recorded && styles.timeCounterRecorded
-              ]} >{timeCounter}</Text>
-              : null
-          }
+          <TimeCounter ref={(ref) => { this.timeCounter = ref }} />
           {
             connected
               ? !recording
